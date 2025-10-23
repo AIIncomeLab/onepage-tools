@@ -5,18 +5,18 @@
 <title>Markdown 在线预览</title>
 <meta name="description" content="实时渲染 Markdown，支持代码块高亮。">
 <link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
 <script src="https://unpkg.com/marked/marked.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/styles/github-dark.min.css">
 <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
 </head>
 <body>
-<header class="container"><h1>Markdown 在线预览</h1><div class="ad">ADSENSE_TOP</div></header>
+<header class="container site-header" data-site-header data-title="Markdown 在线预览"></header>
 <main class="container grid cols-2">
 <textarea class="input" id="md" rows="18" placeholder="# Hello\n\n> 写点 Markdown 吧"></textarea>
 <div class="card" id="html"></div>
 </main>
-<footer class="container"><hr>© <span id="y"></span> · <a href="/">更多工具</a></footer>
-<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<footer class="container site-footer" data-site-footer></footer>
 <script>
 const $=s=>document.querySelector(s), out=$('#html');
 marked.setOptions({highlight:(code,lang)=>{try{return hljs.highlight(code,{language:lang}).value}catch{return hljs.highlightAuto(code).value}}});

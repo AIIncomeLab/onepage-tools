@@ -62,6 +62,7 @@
 
     const pageTitle = placeholder.dataset.title || '';
     const showPageHeading = placeholder.dataset.heading !== 'false' && pageTitle;
+    const note = placeholder.dataset.note || '';
 
     const brandLink = placeholder.dataset.brandHref || '/';
     const brandTitle = placeholder.dataset.brandTitle || '在线工具箱';
@@ -85,6 +86,18 @@
       heading.className = 'site-header__heading';
       heading.textContent = pageTitle;
       placeholder.appendChild(heading);
+
+      if (note) {
+        const sub = document.createElement('div');
+        sub.className = 'muted site-header__note';
+        sub.textContent = note;
+        placeholder.appendChild(sub);
+      }
+    } else if (note) {
+      const sub = document.createElement('div');
+      sub.className = 'muted site-header__note';
+      sub.textContent = note;
+      placeholder.appendChild(sub);
     }
   };
 

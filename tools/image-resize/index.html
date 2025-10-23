@@ -5,10 +5,11 @@
 <title>在线图片尺寸调整</title>
 <meta name="description" content="高质量缩放图片，适配壁纸、社交头像，浏览器本地处理。">
 <link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
 <script src="https://unpkg.com/pica/dist/pica.min.js"></script>
 </head>
 <body>
-<header class="container"><h1>在线图片尺寸调整</h1><div class="ad">ADSENSE_TOP</div></header>
+<header class="container site-header" data-site-header data-title="在线图片尺寸调整"></header>
 <main class="container card">
 <input class="input" type="file" id="img" accept="image/*">
 <div class="grid cols-2">
@@ -20,8 +21,7 @@
 <div id="out"></div>
 </div>
 </main>
-<footer class="container"><hr>© <span id="y"></span> · <a href="/">更多工具</a></footer>
-<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<footer class="container site-footer" data-site-footer></footer>
 <script>
 const $=s=>document.querySelector(s); const pica = window.pica();
 $('#go').onclick=async()=>{

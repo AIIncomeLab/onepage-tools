@@ -6,14 +6,11 @@
 <title>在线合并 PDF｜PDF Merge</title>
 <meta name="description" content="将多个 PDF 文件合并为一个，浏览器本地完成，文件不上传服务器。">
 <link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
 <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 </head>
 <body>
-<header class="container">
-<h1>在线合并 PDF</h1>
-<div class="muted">浏览器端本地合并，隐私安全。</div>
-<div class="ad">ADSENSE_TOP</div>
-</header>
+<header class="container site-header" data-site-header data-title="在线合并 PDF" data-note="浏览器端本地合并，隐私安全。"></header>
 <main class="container card">
 <label>选择多个 PDF（可多选）：</label>
 <input class="input" type="file" id="files" accept="application/pdf" multiple>
@@ -21,8 +18,7 @@
 <button class="btn" id="mergeBtn">合并并下载</button>
 <div id="log" class="muted" style="margin-top:10px"></div>
 </main>
-<footer class="container"><hr>© <span id="y"></span> · <a href="/">更多工具</a></footer>
-<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<footer class="container site-footer" data-site-footer></footer>
 <script>
 const $=s=>document.querySelector(s);
 $('#mergeBtn').onclick=async()=>{

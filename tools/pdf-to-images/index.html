@@ -5,10 +5,11 @@
 <title>PDF 转图片（PNG/JPG）</title>
 <meta name="description" content="离线在浏览器中将 PDF 每页渲染为图片，支持批量下载。">
 <link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
 <script src="https://unpkg.com/pdfjs-dist/build/pdf.min.js"></script>
 </head>
 <body>
-<header class="container"><h1>PDF 转图片</h1><div class="ad">ADSENSE_TOP</div></header>
+<header class="container site-header" data-site-header data-title="PDF 转图片"></header>
 <main class="container card">
 <label>选择 PDF：</label>
 <input class="input" type="file" id="pdf" accept="application/pdf">
@@ -17,8 +18,7 @@
 <button class="btn" id="run">开始转换</button>
 <div id="list" class="grid cols-2" style="margin-top:12px"></div>
 </main>
-<footer class="container"><hr>© <span id="y"></span> · <a href="/">更多工具</a></footer>
-<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<footer class="container site-footer" data-site-footer></footer>
 <script>
 const $=s=>document.querySelector(s);
 $('#run').onclick=async()=>{

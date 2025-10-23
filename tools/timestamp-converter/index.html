@@ -5,10 +5,11 @@
 <title>Unix 时间戳转换器</title>
 <meta name="description" content="秒/毫秒时间戳与本地时间互转，支持复制。">
 <link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
 <script src="https://unpkg.com/dayjs/dayjs.min.js"></script>
 </head>
 <body>
-<header class="container"><h1>Unix 时间戳转换器</h1><div class="ad">ADSENSE_TOP</div></header>
+<header class="container site-header" data-site-header data-title="Unix 时间戳转换器"></header>
 <main class="container card">
 <div class="grid cols-2">
 <div>
@@ -25,8 +26,7 @@
 </div>
 </div>
 </main>
-<footer class="container"><hr>© <span id="y"></span> · <a href="/">更多工具</a></footer>
-<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<footer class="container site-footer" data-site-footer></footer>
 <script>
 const $=s=>document.querySelector(s);
 $('#toLocal').onclick=()=>{

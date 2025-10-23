@@ -5,10 +5,11 @@
 <title>二维码生成器</title>
 <meta name="description" content="输入文本或链接，生成可下载的二维码图片。">
 <link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
 <script src="https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
-<header class="container"><h1>二维码生成器</h1><div class="ad">ADSENSE_TOP</div></header>
+<header class="container site-header" data-site-header data-title="二维码生成器"></header>
 <main class="container card">
 <label>内容：</label>
 <input class="input" id="txt" placeholder="https://example.com">
@@ -17,8 +18,7 @@
 <button class="btn" id="gen">生成</button>
 <div id="q" style="margin-top:12px"></div>
 </main>
-<footer class="container"><hr>© <span id="y"></span> · <a href="/">更多工具</a></footer>
-<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<footer class="container site-footer" data-site-footer></footer>
 <script>
 const $=s=>document.querySelector(s);
 $('#gen').onclick=()=>{
