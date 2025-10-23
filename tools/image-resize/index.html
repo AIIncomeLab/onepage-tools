@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>在线图片尺寸调整</title>
+<meta name="description" content="高质量缩放图片，适配壁纸、社交头像，浏览器本地处理。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="https://unpkg.com/pica/dist/pica.min.js"></script>
+</head>
+<body>
+<header class="container"><h1>在线图片尺寸调整</h1><div class="ad">ADSENSE_TOP</div></header>
+<main class="container card">
+<input class="input" type="file" id="img" accept="image/*">
+<div class="grid cols-2">
+<div>
+<label>目标宽(px)</label><input class="input" id="w" type="number" value="1080">
+<label>目标高(px)</label><input class="input" id="h" type="number" value="1920">
+<button class="btn" id="go">开始调整</button>
+</div>
+<div id="out"></div>
+</div>
+</main>
+<footer class="container"><hr>© <span id="y"></span> · <a href="/">更多工具</a></footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<script>
+const $=s=>document.querySelector(s); const pica = window.pica();
+$('#go').onclick=async()=>{
+const f=$('#img').files[0]; if(!f) return alert('请选择图片');
+const w=parseInt($('#w').value,10), h=parseInt($('#h').value,10);
+const img=new Image(); img.src=URL.createObjectURL(f); await img.decode();
+const src=document.createElement('canvas'); src.width=img.naturalWidth; src.height=img.naturalHeight; src.getContext('2d').drawImage(img,0,0);
+const dst=document.createElement('canvas'); dst.width=w; dst.height=h;
+await pica.resize(src,dst); const url=await pica.toBlob(dst,'image/jpeg',0.9).then(URL.createObjectURL);
+$('#out').innerHTML=`<img src='${url}' style='width:100%;border-radius:12px'><br><a class='btn' href='${url}' download='resized.jpg'>下载结果</a>`;
+};
+</script>
+</body>
+</html>

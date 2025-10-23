@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JSON 美化 / 压缩</title>
+<meta name="description" content="在线 JSON 格式化与压缩，支持错误高亮。">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<header class="container"><h1>JSON 美化 / 压缩</h1><div class="ad">ADSENSE_TOP</div></header>
+<main class="container card">
+<label>输入 JSON：</label>
+<textarea class="input" id="in" rows="10" placeholder='{"hello":"world"}'></textarea>
+<div style="margin:8px 0">
+<button class="btn" id="pretty">美化</button>
+<button class="btn" id="min">压缩</button>
+</div>
+<label>输出：</label>
+<pre id="out" class="code"></pre>
+</main>
+<footer class="container"><hr>© <span id="y"></span> · <a href="/">更多工具</a></footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<script>
+const $=s=>document.querySelector(s), out=$('#out');
+function fmt(sp){try{const v=JSON.parse($('#in').value); out.textContent=JSON.stringify(v,null,sp);}catch(e){out.textContent='❌ JSON 解析错误：'+e.message}}
+$('#pretty').onclick=()=>fmt(2); $('#min').onclick=()=>fmt(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF 转图片（PNG/JPG）</title>
+<meta name="description" content="离线在浏览器中将 PDF 每页渲染为图片，支持批量下载。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="https://unpkg.com/pdfjs-dist/build/pdf.min.js"></script>
+</head>
+<body>
+<header class="container"><h1>PDF 转图片</h1><div class="ad">ADSENSE_TOP</div></header>
+<main class="container card">
+<label>选择 PDF：</label>
+<input class="input" type="file" id="pdf" accept="application/pdf">
+<label>输出格式：</label>
+<select class="input" id="fmt"><option>png</option><option>jpeg</option></select>
+<button class="btn" id="run">开始转换</button>
+<div id="list" class="grid cols-2" style="margin-top:12px"></div>
+</main>
+<footer class="container"><hr>© <span id="y"></span> · <a href="/">更多工具</a></footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<script>
+const $=s=>document.querySelector(s);
+$('#run').onclick=async()=>{
+const f=$('#pdf').files[0]; if(!f) return alert('请先选择 PDF');
+const buf=await f.arrayBuffer();
+const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+$('#list').innerHTML='';
+for(let i=1;i<=pdf.numPages;i++){
+const page=await pdf.getPage(i); const viewport=page.getViewport({scale:2});
+const canvas=document.createElement('canvas'); const ctx=canvas.getContext('2d');
+canvas.width=viewport.width; canvas.height=viewport.height;
+await page.render({canvasContext:ctx,viewport}).promise;
+const type=$('#fmt').value==='png'?'image/png':'image/jpeg';
+const url=canvas.toDataURL(type,0.92);
+const card=document.createElement('div');card.className='card';
+card.innerHTML=`<img src="${url}" style="width:100%;border-radius:12px"><br><a class="btn" download="page-${i}.${$('#fmt').value}" href="${url}">下载第 ${i} 页</a>`;
+$('#list').appendChild(card);
+}
+};
+</script>
+</body>
+</html>

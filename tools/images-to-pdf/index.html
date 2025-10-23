@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>图片合成 PDF（多图→单 PDF）</title>
+<meta name="description" content="选择多张图片，按顺序合成一个 PDF 文件。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+<header class="container"><h1>图片合成 PDF</h1><div class="ad">ADSENSE_TOP</div></header>
+<main class="container card">
+<label>选择图片（支持多选）：</label>
+<input class="input" type="file" id="imgs" accept="image/*" multiple>
+<button class="btn" id="go">生成 PDF</button>
+</main>
+<footer class="container"><hr>© <span id="y"></span> · <a href="/">更多工具</a></footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<script>
+const $=s=>document.querySelector(s);
+$('#go').onclick=async()=>{
+const files=[...$('#imgs').files]; if(!files.length) return alert('请选择图片');
+const { PDFDocument, StandardFonts } = PDFLib; const pdf=await PDFDocument.create();
+for(const f of files){
+const bytes=await f.arrayBuffer(); const img = f.type.includes('png') ? await pdf.embedPng(bytes) : await pdf.embedJpg(bytes);
+const page=pdf.addPage([img.width, img.height]); page.drawImage(img, {x:0,y:0,width:img.width,height:img.height});
+}
+const out=await pdf.save(); const blob=new Blob([out],{type:'application/pdf'});
+const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='images.pdf';a.click();
+};
+</script>
+</body>
+</html>

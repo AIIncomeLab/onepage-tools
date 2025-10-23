@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Unix 时间戳转换器</title>
+<meta name="description" content="秒/毫秒时间戳与本地时间互转，支持复制。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="https://unpkg.com/dayjs/dayjs.min.js"></script>
+</head>
+<body>
+<header class="container"><h1>Unix 时间戳转换器</h1><div class="ad">ADSENSE_TOP</div></header>
+<main class="container card">
+<div class="grid cols-2">
+<div>
+<label>时间戳（秒或毫秒）：</label>
+<input class="input" id="ts" placeholder="例如：1732166400 或 1732166400000">
+<button class="btn" id="toLocal">转为本地时间</button>
+<div class="muted" id="local"></div>
+</div>
+<div>
+<label>本地时间（YYYY-MM-DD HH:mm:ss）：</label>
+<input class="input" id="localStr" placeholder="2025-10-21 12:00:00">
+<button class="btn" id="toTs">转为时间戳</button>
+<div class="muted" id="tsOut"></div>
+</div>
+</div>
+</main>
+<footer class="container"><hr>© <span id="y"></span> · <a href="/">更多工具</a></footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<script>
+const $=s=>document.querySelector(s);
+$('#toLocal').onclick=()=>{
+let v=$('#ts').value.trim(); if(!v) return; if(v.length>10) v=v.slice(0,13); // 兼容毫秒
+const ms=v.length>10?parseInt(v,10):parseInt(v,10)*1000; const d=dayjs(ms);
+$('#local').textContent = d.isValid()? d.format('YYYY-MM-DD HH:mm:ss') : '无效时间戳';
+};
+$('#toTs').onclick=()=>{
+const s=$('#localStr').value.trim(); const d=dayjs(s.replace(' ','T'));
+$('#tsOut').textContent = d.isValid()? `${Math.floor(d.valueOf()/1000)}（秒） ｜ ${d.valueOf()}（毫秒）` : '无效时间格式';
+};
+</script>
+</body>
+</html>
