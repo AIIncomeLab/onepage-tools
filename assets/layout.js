@@ -1,6 +1,6 @@
 (function () {
   const AD_CONFIG = {
-    client: '',
+    client: 'ca-pub-1521190837181685',
     slotTop: '',
     slotBottom: ''
   };
