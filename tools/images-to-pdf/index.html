@@ -5,17 +5,17 @@
 <title>图片合成 PDF（多图→单 PDF）</title>
 <meta name="description" content="选择多张图片，按顺序合成一个 PDF 文件。">
 <link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
 <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 </head>
 <body>
-<header class="container"><h1>图片合成 PDF</h1><div class="ad">ADSENSE_TOP</div></header>
+<header class="container site-header" data-site-header data-title="图片合成 PDF"></header>
 <main class="container card">
 <label>选择图片（支持多选）：</label>
 <input class="input" type="file" id="imgs" accept="image/*" multiple>
 <button class="btn" id="go">生成 PDF</button>
 </main>
-<footer class="container"><hr>© <span id="y"></span> · <a href="/">更多工具</a></footer>
-<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<footer class="container site-footer" data-site-footer></footer>
 <script>
 const $=s=>document.querySelector(s);
 $('#go').onclick=async()=>{

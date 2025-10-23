@@ -24,11 +24,7 @@
 <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
-<header class="container">
-<h1>在线工具箱</h1>
-<div class="muted">纯前端 · 免登录 · 隐私友好</div>
-<div class="ad">ADSENSE_TOP</div>
-</header>
+<header class="container site-header" data-site-header data-title="在线工具箱" data-brand-title="One-Page Tools" data-brand-subtitle="纯前端 · 免登录 · 隐私友好"></header>
 <main class="container grid cols-2">
 <a class="card" href="/tools/pdf-merge/"><b>PDF 合并</b><br><span class="muted">将多个 PDF 合并为一个</span></a>
 <a class="card" href="/tools/pdf-to-images/"><b>PDF 转图片</b><br><span class="muted">PDF 每页导出 PNG/JPG</span></a>
@@ -41,7 +37,7 @@
 <a class="card" href="/tools/qrcode-generator/"><b>二维码生成</b><br><span class="muted">文本/链接转二维码</span></a>
 <a class="card" href="/tools/timestamp-converter/"><b>时间戳转换器</b><br><span class="muted">Unix ↔ 本地时间</span></a>
 </main>
-<footer class="container"><hr>© <span id="y"></span> · <a href="/privacy.html">隐私与政策</a></footer>
-<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+<footer class="container site-footer" data-site-footer></footer>
+<script src="/assets/layout.js" defer></script>
 </body>
 </html>

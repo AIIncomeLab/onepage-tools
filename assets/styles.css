@@ -13,4 +13,11 @@ hr{border:0;border-top:1px solid var(--border);margin:16px 0}
 .grid{display:grid;gap:16px}
 .grid.cols-2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
 .ad{margin:16px 0;padding:8px;border:1px dashed var(--border);border-radius:8px;color:var(--muted);text-align:center}
+.ad-label{font-size:.75rem;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.ad-placeholder{font-size:.85rem}
+.site-header__brand{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.site-header__logo{text-decoration:none;color:var(--fg);font-size:1.75rem;font-weight:700}
+.site-header__logo:hover{color:var(--accent)}
+.site-header__heading{margin:16px 0 0;font-size:1.5rem}
+.site-footer__meta{margin-top:12px}
 .code{background:#0f1730;border:1px solid var(--border);border-radius:12px;padding:12px;overflow:auto}
