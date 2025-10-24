@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF 分割工具</title>
+<meta name="description" content="选择 PDF 并按页码范围拆分出新的 PDF 文件。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="PDF 分割" data-note="输入页码范围，例如 1-3,5,7-8"></header>
+<main class="container card">
+<label>选择 PDF：</label>
+<input class="input" type="file" id="file" accept="application/pdf">
+<label>页码范围：</label>
+<input class="input" type="text" id="range" placeholder="1-3,5,7-8">
+<button class="btn" id="run">拆分并下载</button>
+<div id="msg" class="muted" style="margin-top:12px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+const parseRanges = (text, total) => {
+  const parts = text.split(/[,，]/).map(p => p.trim()).filter(Boolean);
+  const set = new Set();
+  parts.forEach(p => {
+    const [a, b] = p.split('-').map(n => parseInt(n, 10));
+    if (!b) set.add(a);
+    else {
+      const start = Math.min(a, b), end = Math.max(a, b);
+      for (let i = start; i <= end; i++) set.add(i);
+    }
+  });
+  return [...set].map(n => n - 1).filter(n => n >= 0 && n < total).sort((a, b) => a - b);
+};
+$('#run').onclick = async () => {
+  const file = $('#file').files[0];
+  if (!file) return alert('请选择 PDF');
+  const ranges = $('#range').value.trim();
+  if (!ranges) return alert('请输入页码范围');
+  $('#msg').textContent = '处理中…';
+  const data = await file.arrayBuffer();
+  const src = await PDFLib.PDFDocument.load(data);
+  const pages = parseRanges(ranges, src.getPageCount());
+  if (!pages.length) return $('#msg').textContent = '没有匹配到有效页码';
+  const out = await PDFLib.PDFDocument.create();
+  const copies = await out.copyPages(src, pages);
+  copies.forEach(p => out.addPage(p));
+  const bytes = await out.save();
+  const blob = new Blob([bytes], { type: 'application/pdf' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `split-${Date.now()}.pdf`;
+  a.click();
+  $('#msg').textContent = '完成！';
+};
+</script>
+</body>
+</html>

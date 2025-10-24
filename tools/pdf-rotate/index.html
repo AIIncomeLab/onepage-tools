@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF 页面旋转</title>
+<meta name="description" content="批量旋转 PDF 各页，保存为新文件。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="PDF 页面旋转"></header>
+<main class="container card">
+<label>选择 PDF：</label>
+<input class="input" type="file" id="file" accept="application/pdf">
+<label>旋转角度：</label>
+<select class="input" id="deg">
+<option value="90">顺时针 90°</option>
+<option value="180">180°</option>
+<option value="270">逆时针 90°</option>
+</select>
+<button class="btn" id="run">旋转并下载</button>
+<div id="msg" class="muted" style="margin-top:12px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+$('#run').onclick = async () => {
+  const file = $('#file').files[0];
+  if (!file) return alert('请选择 PDF');
+  const deg = parseInt($('#deg').value, 10);
+  $('#msg').textContent = '处理中…';
+  const bytes = await file.arrayBuffer();
+  const pdf = await PDFLib.PDFDocument.load(bytes);
+  const pages = pdf.getPages();
+  pages.forEach(p => p.setRotation(PDFLib.degrees(deg)));
+  const out = await pdf.save();
+  const blob = new Blob([out], { type: 'application/pdf' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `rotate-${deg}-${Date.now()}.pdf`;
+  a.click();
+  $('#msg').textContent = '完成！';
+};
+</script>
+</body>
+</html>

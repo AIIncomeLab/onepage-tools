@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Base64 编解码</title>
+<meta name="description" content="文本或文件的 Base64 编码 / 解码。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="Base64 编解码"></header>
+<main class="container card">
+<label>输入内容：</label>
+<textarea class="input" id="input" rows="8" placeholder="Hello world"></textarea>
+<div style="margin:12px 0">
+<button class="btn" id="encode">编码 →</button>
+<button class="btn" id="decode">解码 ←</button>
+</div>
+<label>结果：</label>
+<textarea class="input" id="output" rows="8"></textarea>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+$('#encode').onclick = () => {
+  try {
+    $('#output').value = btoa(unescape(encodeURIComponent($('#input').value)));
+  } catch (e) {
+    alert('无法编码：' + e.message);
+  }
+};
+$('#decode').onclick = () => {
+  try {
+    $('#input').value = decodeURIComponent(escape(atob($('#output').value)));
+  } catch (e) {
+    alert('无法解码：' + e.message);
+  }
+};
+</script>
+</body>
+</html>

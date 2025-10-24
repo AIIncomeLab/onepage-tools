@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Markdown ↔ HTML 转换</title>
+<meta name="description" content="快速在 Markdown 与 HTML 之间转换。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/marked/marked.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="Markdown ↔ HTML 转换"></header>
+<main class="container grid cols-2">
+<div class="card">
+<label>Markdown：</label>
+<textarea class="input" id="md" rows="14"></textarea>
+<button class="btn" id="toHtml">转为 HTML</button>
+</div>
+<div class="card">
+<label>HTML：</label>
+<textarea class="input" id="html" rows="14"></textarea>
+<button class="btn" id="toMd">转为 Markdown</button>
+</div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+$('#toHtml').onclick = () => { $('#html').value = marked.parse($('#md').value); };
+$('#toMd').onclick = () => {
+  const html = $('#html').value;
+  $('#md').value = html.replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/h([1-6])>/gi, '\n\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<[^>]+>/g, '');
+};
+</script>
+</body>
+</html>

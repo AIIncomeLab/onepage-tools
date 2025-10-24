@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>数字格式化器</title>
+<meta name="description" content="千分位、货币、缩写等常用数字格式转换。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="数字格式化器"></header>
+<main class="container card">
+<label>输入数字：</label>
+<input class="input" type="text" id="num" placeholder="1234567.89">
+<label>格式：</label>
+<select class="input" id="format">
+<option value="thousand">千分位</option>
+<option value="currency">人民币(¥)</option>
+<option value="percent">百分比</option>
+<option value="short">缩写(K/M/B)</option>
+</select>
+<button class="btn" id="run">转换</button>
+<pre class="code" id="out" style="margin-top:16px"></pre>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+const abbreviate = (n) => {
+  const abs = Math.abs(n);
+  if (abs >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+  if (abs >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (abs >= 1e3) return (n / 1e3).toFixed(2) + 'K';
+  return n.toString();
+};
+$('#run').onclick = () => {
+  const value = parseFloat($('#num').value);
+  if (Number.isNaN(value)) return alert('请输入有效数字');
+  const fmt = $('#format').value;
+  let res = '';
+  if (fmt === 'thousand') res = value.toLocaleString('zh-CN');
+  if (fmt === 'currency') res = value.toLocaleString('zh-CN', { style: 'currency', currency: 'CNY' });
+  if (fmt === 'percent') res = (value * 100).toFixed(2) + '%';
+  if (fmt === 'short') res = abbreviate(value);
+  $('#out').textContent = res;
+};
+</script>
+</body>
+</html>

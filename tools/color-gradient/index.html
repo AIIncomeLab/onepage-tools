@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>渐变生成器</title>
+<meta name="description" content="选择两种颜色生成线性渐变，支持角度与复制 CSS。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="渐变生成器"></header>
+<main class="container card">
+<div class="grid cols-2">
+<div>
+<label>颜色 A：</label><input class="input" type="color" id="a" value="#6aa2ff">
+<label>颜色 B：</label><input class="input" type="color" id="b" value="#121a33">
+<label>角度：</label><input class="input" type="range" id="deg" min="0" max="360" value="135">
+</div>
+<div id="preview" style="height:180px;border-radius:16px"></div>
+</div>
+<label>CSS：</label>
+<pre class="code" id="code"></pre>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+const render = () => {
+  const deg = $('#deg').value;
+  const gradient = `linear-gradient(${deg}deg, ${$('#a').value}, ${$('#b').value})`;
+  $('#preview').style.background = gradient;
+  $('#code').textContent = `background:${gradient};`;
+};
+['a', 'b', 'deg'].forEach(id => $('#' + id).addEventListener('input', render));
+render();
+</script>
+</body>
+</html>

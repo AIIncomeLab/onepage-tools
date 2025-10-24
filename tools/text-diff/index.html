@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>文本差异对比</title>
+<meta name="description" content="比较两段文本的差异并高亮显示。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/diff-match-patch@1.0.5/index.js"></script>
+<style>
+.diff ins{color:#1fff87;background:rgba(32,255,135,0.15);text-decoration:none}
+.diff del{color:#ff8888;background:rgba(255,64,64,0.15);text-decoration:none}
+</style>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="文本差异对比"></header>
+<main class="container card">
+<label>原文：</label>
+<textarea class="input" id="a" rows="8"></textarea>
+<label>修改后：</label>
+<textarea class="input" id="b" rows="8"></textarea>
+<button class="btn" id="run">对比</button>
+<div class="card diff" id="out" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const dmp = new diff_match_patch();
+const $ = s => document.querySelector(s);
+$('#run').onclick = () => {
+  const diffs = dmp.diff_main($('#a').value, $('#b').value);
+  dmp.diff_cleanupSemantic(diffs);
+  $('#out').innerHTML = diffs.map(([type, text]) => {
+    if (type === 0) return text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const tag = type === 1 ? 'ins' : 'del';
+    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    return `<${tag}>${escaped}</${tag}>`;
+  }).join('');
+};
+</script>
+</body>
+</html>

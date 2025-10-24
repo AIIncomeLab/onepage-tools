@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JWT 解码器</title>
+<meta name="description" content="查看 JWT Header 与 Payload。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="JWT 解码器"></header>
+<main class="container card">
+<label>JWT Token：</label>
+<textarea class="input" id="token" rows="6" placeholder="eyJhbGciOi..."></textarea>
+<button class="btn" id="decode">解码</button>
+<label>Header：</label>
+<pre class="code" id="header"></pre>
+<label>Payload：</label>
+<pre class="code" id="payload"></pre>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+const decodePart = (part) => {
+  const normalized = part.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = normalized + '==='.slice((normalized.length + 3) % 4);
+  return JSON.stringify(JSON.parse(atob(padded)), null, 2);
+};
+$('#decode').onclick = () => {
+  try {
+    const [h, p] = $('#token').value.trim().split('.');
+    $('#header').textContent = decodePart(h);
+    $('#payload').textContent = decodePart(p);
+  } catch (e) {
+    alert('解码失败：' + e.message);
+  }
+};
+</script>
+</body>
+</html>

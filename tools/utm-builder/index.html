@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UTM 参数生成器</title>
+<meta name="description" content="快速拼接 Google Analytics UTM 追踪链接。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="UTM 参数生成器"></header>
+<main class="container card">
+<label>目标链接：</label>
+<input class="input" type="url" id="url" placeholder="https://example.com/landing">
+<div class="grid cols-2">
+<label>source（来源）<input class="input" id="source"></label>
+<label>medium（媒介）<input class="input" id="medium"></label>
+<label>campaign（活动）<input class="input" id="campaign"></label>
+<label>term（关键词，可选）<input class="input" id="term"></label>
+<label>content（广告文案，可选）<input class="input" id="content"></label>
+</div>
+<button class="btn" id="build">生成链接</button>
+<textarea class="input" id="out" rows="3" style="margin-top:16px"></textarea>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+$('#build').onclick = () => {
+  const base = $('#url').value.trim();
+  if (!base) return alert('请填写目标链接');
+  const params = new URLSearchParams();
+  [['utm_source', 'source'], ['utm_medium', 'medium'], ['utm_campaign', 'campaign'], ['utm_term', 'term'], ['utm_content', 'content']].forEach(([key, id]) => {
+    const val = $('#' + id).value.trim();
+    if (val) params.set(key, val);
+  });
+  if (!params.get('utm_source') || !params.get('utm_medium') || !params.get('utm_campaign')) {
+    return alert('source / medium / campaign 为必填');
+  }
+  const url = new URL(base);
+  params.forEach((value, key) => url.searchParams.set(key, value));
+  $('#out').value = url.toString();
+};
+</script>
+</body>
+</html>

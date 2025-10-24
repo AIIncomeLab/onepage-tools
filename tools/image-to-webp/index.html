@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>图片转 WebP</title>
+<meta name="description" content="批量将图片转换为 WebP 格式。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="图片转 WebP" data-note="浏览器本地处理，不上传服务器"></header>
+<main class="container card">
+<label>选择图片（可多选）：</label>
+<input class="input" type="file" id="imgs" multiple accept="image/*">
+<label>质量（0-1）：</label>
+<input class="input" type="number" id="q" value="0.9" min="0.1" max="1" step="0.1">
+<button class="btn" id="run">转换</button>
+<div id="list" style="margin-top:16px" class="grid cols-2"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+$('#run').onclick = async () => {
+  const files = [...$('#imgs').files];
+  if (!files.length) return alert('请选择图片');
+  const q = parseFloat($('#q').value) || 0.9;
+  $('#list').innerHTML = '';
+  for (const file of files) {
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    canvas.getContext('2d').drawImage(img, 0, 0);
+    const url = canvas.toDataURL('image/webp', q);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<img src="${url}" style="width:100%;border-radius:12px"><br>
+    <a class="btn" href="${url}" download="${file.name.replace(/\.[^.]+$/, '')}.webp">下载 ${file.name}</a>`;
+    $('#list').appendChild(card);
+  }
+};
+</script>
+</body>
+</html>

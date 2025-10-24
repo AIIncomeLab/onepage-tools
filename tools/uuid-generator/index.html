@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UUID 生成器</title>
+<meta name="description" content="批量生成 UUID v4。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="UUID 生成器"></header>
+<main class="container card">
+<label>数量：</label>
+<input class="input" type="number" id="count" value="5" min="1" max="100">
+<button class="btn" id="gen">生成 UUID</button>
+<pre class="code" id="out" style="margin-top:16px"></pre>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+const gen = () => crypto.randomUUID();
+$('#gen').onclick = () => {
+  const n = Math.min(Math.max(parseInt($('#count').value, 10) || 1, 1), 100);
+  const list = Array.from({ length: n }, () => gen()).join('\n');
+  $('#out').textContent = list;
+};
+</script>
+</body>
+</html>

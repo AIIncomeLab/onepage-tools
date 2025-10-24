@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lorem Ipsum 生成器</title>
+<meta name="description" content="生成指定段落数的 Lorem Ipsum 占位文本。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="Lorem Ipsum 生成器"></header>
+<main class="container card">
+<label>段落数量：</label>
+<input class="input" type="number" id="count" value="3" min="1" max="10">
+<button class="btn" id="run">生成</button>
+<textarea class="input" id="out" rows="10" style="margin-top:16px"></textarea>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const base = [
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra libero non orci consequat, vel ultrices metus hendrerit.',
+  'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.',
+  'Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?',
+  'Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur.',
+  'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti.'
+];
+const $ = s => document.querySelector(s);
+$('#run').onclick = () => {
+  const n = Math.min(Math.max(parseInt($('#count').value, 10) || 3, 1), 10);
+  const paras = Array.from({ length: n }, (_, i) => base[i % base.length]);
+  $('#out').value = paras.join('\n\n');
+};
+</script>
+</body>
+</html>

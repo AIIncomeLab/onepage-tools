@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>图片转黑白</title>
+<meta name="description" content="一键将彩色图片转换为黑白灰度。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="图片转黑白"></header>
+<main class="container card">
+<label>选择图片：</label>
+<input class="input" type="file" id="img" accept="image/*">
+<button class="btn" id="run">转换</button>
+<div id="preview" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+$('#run').onclick = async () => {
+  const file = $('#img').files[0];
+  if (!file) return alert('请选择图片');
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+  await img.decode();
+  const canvas = document.createElement('canvas');
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < data.data.length; i += 4) {
+    const r = data.data[i], g = data.data[i + 1], b = data.data[i + 2];
+    const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+    data.data[i] = data.data[i + 1] = data.data[i + 2] = gray;
+  }
+  ctx.putImageData(data, 0, 0);
+  const url = canvas.toDataURL('image/png');
+  $('#preview').innerHTML = `<img src="${url}" style="max-width:100%;border-radius:12px"><br>
+  <a class="btn" href="${url}" download="grayscale-${file.name}">下载图片</a>`;
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTML 转义工具</title>
+<meta name="description" content="在 HTML 实体与普通文本间互转。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="HTML 转义工具"></header>
+<main class="container card">
+<label>原始文本：</label>
+<textarea class="input" id="raw" rows="8"></textarea>
+<div style="margin:12px 0">
+<button class="btn" id="encode">编码</button>
+<button class="btn" id="decode">解码</button>
+</div>
+<label>结果：</label>
+<textarea class="input" id="out" rows="8"></textarea>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+const escapeHtml = text => text.replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const unescapeHtml = text => text.replace(/&(amp|lt|gt|quot|#39);/g, (all, code) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'" }[code]));
+$('#encode').onclick = () => $('#out').value = escapeHtml($('#raw').value);
+$('#decode').onclick = () => $('#raw').value = unescapeHtml($('#out').value);
+</script>
+</body>
+</html>

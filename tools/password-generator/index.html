@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>随机密码生成器</title>
+<meta name="description" content="自定义长度与字符集，生成安全密码。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="随机密码生成器"></header>
+<main class="container card">
+<label>长度：</label>
+<input class="input" type="number" id="len" value="16" min="4" max="64">
+<label>包含字符：</label>
+<div class="grid cols-2">
+<label><input type="checkbox" id="lower" checked> 小写字母</label>
+<label><input type="checkbox" id="upper" checked> 大写字母</label>
+<label><input type="checkbox" id="digits" checked> 数字</label>
+<label><input type="checkbox" id="symbols"> 特殊符号</label>
+</div>
+<button class="btn" id="gen">生成密码</button>
+<pre class="code" id="out" style="margin-top:16px"></pre>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const pools = {
+  lower: 'abcdefghijklmnopqrstuvwxyz',
+  upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  digits: '0123456789',
+  symbols: '!@#$%^&*()_-+=[]{};:,.<>/?'
+};
+const $ = s => document.querySelector(s);
+$('#gen').onclick = () => {
+  const len = Math.min(Math.max(parseInt($('#len').value, 10) || 16, 4), 64);
+  const chars = Object.entries(pools).filter(([id]) => $('#' + id).checked).map(([, v]) => v).join('');
+  if (!chars) return alert('至少选择一种字符集');
+  const arr = new Uint32Array(len);
+  crypto.getRandomValues(arr);
+  let pwd = '';
+  for (let i = 0; i < len; i++) pwd += chars[arr[i] % chars.length];
+  $('#out').textContent = pwd;
+};
+</script>
+</body>
+</html>

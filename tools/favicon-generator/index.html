@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Favicon 生成器</title>
+<meta name="description" content="用文字或 Emoji 一键生成多尺寸 Favicon。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="Favicon 生成器"></header>
+<main class="container card">
+<label>字符 / Emoji：</label>
+<input class="input" type="text" id="text" placeholder="🛠️" maxlength="2">
+<label>背景颜色：</label>
+<input class="input" type="color" id="bg" value="#0b1020">
+<label>文字颜色：</label>
+<input class="input" type="color" id="fg" value="#ffffff">
+<button class="btn" id="run">生成并下载</button>
+<div id="preview" class="grid cols-2" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const sizes = [16, 32, 64, 128, 256];
+const $ = s => document.querySelector(s);
+$('#run').onclick = () => {
+  const text = $('#text').value || '🛠️';
+  const bg = $('#bg').value;
+  const fg = $('#fg').value;
+  $('#preview').innerHTML = '';
+  sizes.forEach(size => {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = fg;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `${size * 0.6}px system-ui`;
+    ctx.fillText(text, size / 2, size / 2);
+    const url = canvas.toDataURL('image/png');
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<img src="${url}" style="width:100%;border-radius:12px;background:${bg}"><br>
+    <small>${size}×${size}</small><br>
+    <a class="btn" href="${url}" download="favicon-${size}.png">下载</a>`;
+    $('#preview').appendChild(card);
+  });
+};
+</script>
+</body>
+</html>

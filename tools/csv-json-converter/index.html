@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSV ↔ JSON 转换器</title>
+<meta name="description" content="在浏览器本地互转 CSV 和 JSON。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="CSV ↔ JSON 转换器"></header>
+<main class="container card">
+<label>CSV 输入：</label>
+<textarea class="input" id="csv" rows="6" placeholder="name,age&#10;Alice,24"></textarea>
+<button class="btn" id="toJson">转换为 JSON</button>
+<label>JSON 输入：</label>
+<textarea class="input" id="json" rows="6" placeholder='[{"name":"Alice","age":24}]'></textarea>
+<button class="btn" id="toCsv">转换为 CSV</button>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+$('#toJson').onclick = () => {
+  const text = $('#csv').value;
+  const res = Papa.parse(text, { header: true, skipEmptyLines: true });
+  $('#json').value = JSON.stringify(res.data, null, 2);
+};
+$('#toCsv').onclick = () => {
+  try {
+    const data = JSON.parse($('#json').value);
+    const csv = Papa.unparse(data);
+    $('#csv').value = csv;
+  } catch (e) {
+    alert('JSON 解析失败：' + e.message);
+  }
+};
+</script>
+</body>
+</html>

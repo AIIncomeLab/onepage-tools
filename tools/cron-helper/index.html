@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cron 表达式助手</title>
+<meta name="description" content="解析 Cron 表达式，输出解释与未来运行时间。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/cronstrue@2.50.0/dist/cronstrue.min.js"></script>
+<script src="https://unpkg.com/cron-parser@4.9.0/browser/cron-parser.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="Cron 表达式助手"></header>
+<main class="container card">
+<label>Cron 表达式：</label>
+<input class="input" type="text" id="expr" value="*/5 * * * *">
+<button class="btn" id="parse">解析</button>
+<div class="card" style="margin-top:16px">
+<div class="muted">解释：</div>
+<div id="human"></div>
+<hr>
+<div class="muted">未来 5 次运行时间：</div>
+<ul id="times"></ul>
+</div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+$('#parse').onclick = () => {
+  const expr = $('#expr').value.trim();
+  try {
+    $('#human').textContent = cronstrue.toString(expr, { locale: 'zh_CN' });
+    const interval = cronParser.parseExpression(expr);
+    const list = [];
+    for (let i = 0; i < 5; i++) list.push(interval.next().toDate().toLocaleString());
+    $('#times').innerHTML = list.map(t => `<li>${t}</li>`).join('');
+  } catch (e) {
+    alert('解析失败：' + e.message);
+  }
+};
+</script>
+</body>
+</html>

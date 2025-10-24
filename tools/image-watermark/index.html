@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>图片加水印</title>
+<meta name="description" content="添加文字或图片水印，可调位置与透明度。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="图片加水印"></header>
+<main class="container card">
+<label>原图：</label>
+<input class="input" type="file" id="img" accept="image/*">
+<label>水印文字：</label>
+<input class="input" type="text" id="text" placeholder="Watermark">
+<label>水印透明度 (0-1)：</label>
+<input class="input" type="number" id="opacity" value="0.5" min="0" max="1" step="0.1">
+<label>位置：</label>
+<select class="input" id="pos">
+<option value="lb">左下</option>
+<option value="rb" selected>右下</option>
+<option value="lt">左上</option>
+<option value="rt">右上</option>
+<option value="center">居中</option>
+</select>
+<button class="btn" id="run">生成水印图</button>
+<div id="preview" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $ = s => document.querySelector(s);
+$('#run').onclick = async () => {
+  const file = $('#img').files[0];
+  if (!file) return alert('请选择原图');
+  const text = $('#text').value.trim();
+  if (!text) return alert('请输入水印文字');
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+  await img.decode();
+  const canvas = document.createElement('canvas');
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  ctx.globalAlpha = parseFloat($('#opacity').value) || 0.5;
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.font = `${Math.round(canvas.width * 0.05)}px sans-serif`;
+  const metrics = ctx.measureText(text);
+  const margin = canvas.width * 0.02;
+  const h = metrics.actualBoundingBoxAscent;
+  let x = margin, y = canvas.height - h - margin;
+  const pos = $('#pos').value;
+  if (pos === 'rb') { x = canvas.width - metrics.width - margin; y = canvas.height - h - margin; }
+  if (pos === 'lt') { x = margin; y = h + margin; }
+  if (pos === 'rt') { x = canvas.width - metrics.width - margin; y = h + margin; }
+  if (pos === 'center') { x = (canvas.width - metrics.width) / 2; y = (canvas.height + h) / 2; }
+  ctx.fillText(text, x, y);
+  ctx.globalAlpha = 1;
+  const url = canvas.toDataURL('image/png');
+  $('#preview').innerHTML = `<img src="${url}" style="max-width:100%;border-radius:12px"><br>
+  <a class="btn" href="${url}" download="watermark-${file.name}">下载图片</a>`;
+};
+</script>
+</body>
+</html>

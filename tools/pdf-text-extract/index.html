@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF 文本提取</title>
+<meta name="description" content="从 PDF 中提取纯文本内容。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="PDF 文本提取"></header>
+<main class="container card">
+<label>选择 PDF：</label>
+<input class="input" type="file" id="file" accept="application/pdf">
+<button class="btn" id="run">提取文本</button>
+<textarea class="input" id="out" rows="12" style="margin-top:16px" placeholder="文本输出区域"></textarea>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.worker.min.js';
+const $ = s => document.querySelector(s);
+$('#run').onclick = async () => {
+  const file = $('#file').files[0];
+  if (!file) return alert('请选择 PDF');
+  $('#out').value = '解析中…';
+  const data = new Uint8Array(await file.arrayBuffer());
+  const doc = await pdfjsLib.getDocument({ data }).promise;
+  let text = '';
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    const str = content.items.map(it => it.str).join(' ');
+    text += `---- 第 ${i} 页 ----\n${str}\n\n`;
+  }
+  $('#out').value = text.trim();
+};
+</script>
+</body>
+</html>
