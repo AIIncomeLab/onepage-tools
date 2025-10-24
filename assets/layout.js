@@ -123,6 +123,12 @@
   document.addEventListener('DOMContentLoaded', () => {
     injectHeader();
     injectFooter();
+
+    const mainEl = document.querySelector('main');
+    if (mainEl && mainEl.classList.contains('card')) {
+      document.body.classList.add('layout-single');
+    }
+
     ensureAdSenseScript();
     queueAdSlots();
   });
