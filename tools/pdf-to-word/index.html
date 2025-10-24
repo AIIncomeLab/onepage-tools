@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF 转 Word（实验）</title>
+<meta name="description" content="快速提取 PDF 文本并生成 DOCX 文档。复杂排版可能失真。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.min.js"></script>
+<script src="https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.worker.min.js"></script>
+<script src="https://unpkg.com/docx@8.3.2/build/docx.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="PDF 转 Word（实验）" data-note="仅提取文本，复杂格式/图片暂不支持"></header>
+<main class="container card">
+<label>选择 PDF：</label>
+<input class="input" type="file" id="file" accept="application/pdf">
+<button class="btn" id="run">转换为 DOCX</button>
+<div id="msg" class="muted" style="margin-top:12px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.worker.min.js';
+const $=s=>document.querySelector(s);
+$('#run').onclick=async()=>{
+  const file=$('#file').files[0];
+  if(!file) return alert('请选择 PDF');
+  $('#msg').textContent='读取中…';
+  const data=new Uint8Array(await file.arrayBuffer());
+  const doc=await pdfjsLib.getDocument({data}).promise;
+  const sections=[];
+  for(let i=1;i<=doc.numPages;i++){
+    const page=await doc.getPage(i);
+    const content=await page.getTextContent();
+    const text=content.items.map(item=>item.str).join(' ');
+    sections.push(new docx.Paragraph({text,textRun:new docx.TextRun(text)}));
+    sections.push(new docx.Paragraph(''));
+  }
+  const document=new docx.Document({sections:[{properties:{},children:sections.length?sections:[new docx.Paragraph('（空文档）')]}]});
+  const blob=await docx.Packer.toBlob(document);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`${file.name.replace(/\.pdf$/i,'')||'document'}.docx`;
+  a.click();
+  $('#msg').textContent='转换完成。';
+};
+</script>
+</body>
+</html>

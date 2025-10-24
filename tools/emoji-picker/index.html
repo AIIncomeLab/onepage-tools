@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Emoji / 特殊符号速查</title>
+<meta name="description" content="搜索 Emoji 与特殊符号，点击即可复制。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<style>
+.emoji-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:12px;margin-top:16px}
+.emoji-item{padding:12px;background:#0f1730;border:1px solid var(--border);border-radius:12px;text-align:center;cursor:pointer}
+.emoji-item span{font-size:1.8rem;display:block}
+</style>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="Emoji / 特殊符号速查"></header>
+<main class="container card">
+<label>关键词：</label>
+<input class="input" type="text" id="search" placeholder="例如 love, arrow, 星星">
+<div id="list" class="emoji-grid"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+let emojis=[];
+async function load(){
+  const res=await fetch('https://unpkg.com/emoji.json/emoji.json');
+  emojis=await res.json();
+  render();
+}
+function render(){
+  const keyword=$('#search').value.trim().toLowerCase();
+  const fragment=document.createDocumentFragment();
+  emojis.filter(e=>{
+    if(!keyword) return true;
+    return e.name.toLowerCase().includes(keyword) || (e.codes||'').includes(keyword) || (e.char||'').includes(keyword);
+  }).slice(0,200).forEach(e=>{
+    const div=document.createElement('div');
+    div.className='emoji-item';
+    div.innerHTML=`<span>${e.char}</span><small>${e.name}</small>`;
+    div.onclick=()=>{
+      navigator.clipboard.writeText(e.char);
+      div.classList.add('copied');
+      setTimeout(()=>div.classList.remove('copied'),800);
+    };
+    fragment.appendChild(div);
+  });
+  const list=$('#list');
+  list.innerHTML='';
+  list.appendChild(fragment);
+}
+$('#search').addEventListener('input',render);
+load().catch(()=>{$('#list').textContent='Emoji 数据加载失败，请刷新重试。';});
+</script>
+</body>
+</html>

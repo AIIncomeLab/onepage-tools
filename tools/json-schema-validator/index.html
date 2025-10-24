@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JSON Schema 校验器</title>
+<meta name="description" content="输入 JSON Schema 与数据，验证结构是否符合规范。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/ajv@8.12.0/dist/ajv.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="JSON Schema 校验器"></header>
+<main class="container grid cols-2">
+<div class="card">
+<label>JSON Schema：</label>
+<textarea class="input" id="schema" rows="14" placeholder='{"type":"object","properties":{"name":{"type":"string"}},"required":["name"]}'></textarea>
+</div>
+<div class="card">
+<label>待校验数据：</label>
+<textarea class="input" id="data" rows="14" placeholder='{"name":"Alice"}'></textarea>
+<button class="btn" id="validate" style="margin-top:12px">开始校验</button>
+<pre class="code" id="result" style="margin-top:12px"></pre>
+</div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+$('#validate').onclick=()=>{
+  try{
+    const schema=JSON.parse($('#schema').value||'{}');
+    const data=JSON.parse($('#data').value||'{}');
+    const ajv=new Ajv({allErrors:true});
+    const validate=ajv.compile(schema);
+    const valid=validate(data);
+    if(valid){
+      $('#result').textContent='✅ 数据有效';
+    }else{
+      $('#result').textContent='❌ 校验失败：\n'+validate.errors.map(err=>`${err.instancePath||'/'} ${err.message}`).join('\n');
+    }
+  }catch(err){
+    $('#result').textContent='解析失败：'+err.message;
+  }
+};
+</script>
+</body>
+</html>

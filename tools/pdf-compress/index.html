@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF 压缩</title>
+<meta name="description" content="调整分辨率与质量，压缩 PDF 文件大小。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.min.js"></script>
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="PDF 压缩" data-note="浏览器本地重新渲染，支持分辨率与质量调节"></header>
+<main class="container card">
+<label>选择 PDF：</label>
+<input class="input" type="file" id="file" accept="application/pdf">
+<label>渲染比例（0.3-1.0）：</label>
+<input class="input" type="number" id="scale" value="0.6" min="0.2" max="1.5" step="0.1">
+<label>JPEG 质量（0.3-0.95）：</label>
+<input class="input" type="number" id="quality" value="0.8" min="0.3" max="0.95" step="0.05">
+<button class="btn" id="run">压缩并下载</button>
+<div id="msg" class="muted" style="margin-top:12px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.worker.min.js';
+const $=s=>document.querySelector(s);
+$('#run').onclick=async()=>{
+  const file=$('#file').files[0];
+  if(!file) return alert('请选择 PDF');
+  const scale=parseFloat($('#scale').value)||0.6;
+  const quality=parseFloat($('#quality').value)||0.8;
+  $('#msg').textContent='正在压缩，请稍候…';
+  const data=new Uint8Array(await file.arrayBuffer());
+  const src=await pdfjsLib.getDocument({data}).promise;
+  const out=await PDFLib.PDFDocument.create();
+  for(let i=1;i<=src.numPages;i++){
+    const page=await src.getPage(i);
+    const viewport=page.getViewport({scale});
+    const canvas=document.createElement('canvas');
+    canvas.width=viewport.width;
+    canvas.height=viewport.height;
+    const ctx=canvas.getContext('2d',{alpha:false});
+    await page.render({canvasContext:ctx,viewport}).promise;
+    const url=canvas.toDataURL('image/jpeg',quality);
+    const bytes=await fetch(url).then(r=>r.arrayBuffer());
+    const img=await out.embedJpg(bytes);
+    const newPage=out.addPage([img.width,img.height]);
+    newPage.drawImage(img,{x:0,y:0,width:img.width,height:img.height});
+  }
+  const pdf=await out.save();
+  const blob=new Blob([pdf],{type:'application/pdf'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`compressed-${file.name}`;
+  a.click();
+  $('#msg').textContent='完成！';
+};
+</script>
+</body>
+</html>

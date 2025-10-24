@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>单位换算器</title>
+<meta name="description" content="支持长度、重量、温度等常用单位换算。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="单位换算器"></header>
+<main class="container card">
+<label>类别：</label>
+<select class="input" id="category">
+<option value="length">长度</option>
+<option value="weight">重量</option>
+<option value="temperature">温度</option>
+</select>
+<div class="grid cols-2" style="margin-top:12px">
+<label>输入数值<input class="input" type="number" id="value" value="1"></label>
+<label>源单位<select class="input" id="from"></select></label>
+<label>目标单位<select class="input" id="to"></select></label>
+</div>
+<button class="btn" id="convert" style="margin-top:12px">转换</button>
+<div id="result" class="card" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+const units={
+  length:{m:1,km:1000,cm:0.01,mm:0.001,mi:1609.34,ft:0.3048},
+  weight:{kg:1,g:0.001,lb:0.453592,oz:0.0283495},
+  temperature:{C:'C',F:'F',K:'K'}
+};
+function fillUnits(){
+  const cat=$('#category').value;
+  const options=Object.keys(units[cat]).map(u=>`<option value="${u}">${u}</option>`).join('');
+  $('#from').innerHTML=options;
+  $('#to').innerHTML=options;
+}
+function convert(){
+  const cat=$('#category').value;
+  const val=parseFloat($('#value').value)||0;
+  const from=$('#from').value;
+  const to=$('#to').value;
+  let result=val;
+  if(cat==='temperature'){
+    const toC=()=>{if(from==='C')return val;if(from==='F')return (val-32)*5/9;if(from==='K')return val-273.15;};
+    const c=toC();
+    if(to==='C') result=c;
+    if(to==='F') result=c*9/5+32;
+    if(to==='K') result=c+273.15;
+  }else{
+    const base=val*units[cat][from];
+    result=base/units[cat][to];
+  }
+  $('#result').innerHTML=`<b>${val} ${from}</b> = <b>${result.toFixed(6)} ${to}</b>`;
+}
+$('#category').addEventListener('change',()=>{fillUnits();convert();});
+$('#convert').onclick=convert;
+fillUnits();
+convert();
+</script>
+</body>
+</html>

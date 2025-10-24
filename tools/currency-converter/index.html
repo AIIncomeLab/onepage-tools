@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>汇率换算器</title>
+<meta name="description" content="实时获取汇率，支持 150+ 货币之间的换算。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="汇率换算器" data-note="数据来源 exchangerate.host 免费接口"></header>
+<main class="container card">
+<label>金额：</label>
+<input class="input" type="number" id="amount" value="100">
+<div class="grid cols-2" style="margin-top:12px">
+<label>源货币<select class="input" id="from"></select></label>
+<label>目标货币<select class="input" id="to"></select></label>
+</div>
+<button class="btn" id="convert" style="margin-top:12px">换算</button>
+<div id="result" class="card" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const api='https://api.exchangerate.host/latest';
+const $=s=>document.querySelector(s);
+let rates={},base='EUR';
+async function loadRates(){
+  const res=await fetch(api);
+  const data=await res.json();
+  base=data.base;
+  rates=data.rates;
+  const options=Object.keys(rates).sort().map(code=>`<option value="${code}">${code}</option>`).join('');
+  $('#from').innerHTML=options;
+  $('#to').innerHTML=options;
+  $('#from').value='USD';
+  $('#to').value='CNY';
+}
+function convert(){
+  if(!Object.keys(rates).length) return;
+  const amount=parseFloat($('#amount').value)||0;
+  const from=$('#from').value;
+  const to=$('#to').value;
+  const value=amount*(rates[to]/rates[from]);
+  $('#result').innerHTML=`<b>${amount} ${from}</b> ≈ <b>${value.toFixed(4)} ${to}</b><br><small class="muted">基准：1 ${base}</small>`;
+}
+$('#convert').onclick=convert;
+loadRates().then(convert).catch(()=>$('#result').textContent='汇率加载失败，请稍后重试。');
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>渐变色盘生成器</title>
+<meta name="description" content="随机生成多组渐变配色，支持复制 CSS 代码。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<style>
+.palette{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-top:16px}
+.gradient-card{border-radius:16px;padding:16px;color:#fff;position:relative;min-height:140px;display:flex;flex-direction:column;justify-content:flex-end}
+.gradient-card button{align-self:flex-start;margin-top:12px}
+</style>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="渐变色盘生成器"></header>
+<main class="container card">
+<label>数量：</label>
+<input class="input" type="number" id="count" value="6" min="1" max="12">
+<button class="btn" id="generate" style="margin-top:12px">生成渐变</button>
+<div id="palettes" class="palette"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+function randColor(){return '#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0');}
+function buildGradient(){
+  const colors=[randColor(),randColor(),randColor()];
+  const angle=Math.floor(Math.random()*360);
+  return {css:`linear-gradient(${angle}deg, ${colors.join(', ')})`,colors};
+}
+function render(){
+  const count=Math.min(Math.max(parseInt($('#count').value,10)||6,1),12);
+  const container=$('#palettes');
+  container.innerHTML='';
+  for(let i=0;i<count;i++){
+    const gradient=buildGradient();
+    const card=document.createElement('div');
+    card.className='gradient-card';
+    card.style.background=gradient.css;
+    card.innerHTML=`<div>${gradient.colors.join(' · ')}</div>`;
+    const btn=document.createElement('button');
+    btn.className='btn';
+    btn.textContent='复制 CSS';
+    btn.onclick=()=>{
+      navigator.clipboard.writeText(`background: ${gradient.css};`);
+      btn.textContent='已复制';
+      setTimeout(()=>btn.textContent='复制 CSS',1200);
+    };
+    card.appendChild(btn);
+    container.appendChild(card);
+  }
+}
+$('#generate').onclick=render;
+render();
+</script>
+</body>
+</html>

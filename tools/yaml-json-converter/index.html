@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YAML ↔ JSON 转换器</title>
+<meta name="description" content="一键在 YAML 与 JSON 之间互转，支持格式化与错误提示。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="YAML ↔ JSON 转换器"></header>
+<main class="container grid cols-2">
+<div class="card">
+<label>YAML：</label>
+<textarea class="input" id="yaml" rows="14" placeholder="name: demo"></textarea>
+<button class="btn" id="yamlToJson">转为 JSON</button>
+</div>
+<div class="card">
+<label>JSON：</label>
+<textarea class="input" id="json" rows="14" placeholder='{"name":"demo"}'></textarea>
+<button class="btn" id="jsonToYaml">转为 YAML</button>
+</div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+$('#yamlToJson').onclick=()=>{
+  try{
+    const parsed=jsyaml.load($('#yaml').value||'');
+    $('#json').value=JSON.stringify(parsed,null,2);
+  }catch(err){
+    alert('YAML 解析失败：'+err.message);
+  }
+};
+$('#jsonToYaml').onclick=()=>{
+  try{
+    const data=JSON.parse($('#json').value||'');
+    $('#yaml').value=jsyaml.dump(data);
+  }catch(err){
+    alert('JSON 解析失败：'+err.message);
+  }
+};
+</script>
+</body>
+</html>

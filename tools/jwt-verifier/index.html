@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JWT 签名校验器</title>
+<meta name="description" content="解码 JWT 并使用共享密钥校验 HS256/HS384/HS512 签名。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="JWT 签名校验器"></header>
+<main class="container card">
+<label>JWT Token：</label>
+<textarea class="input" id="token" rows="6"></textarea>
+<label>密钥（HMAC）：</label>
+<input class="input" type="text" id="secret" placeholder="共享密钥">
+<button class="btn" id="verify">解码并校验</button>
+<label>Header：</label>
+<pre class="code" id="header"></pre>
+<label>Payload：</label>
+<pre class="code" id="payload"></pre>
+<div id="status" class="muted" style="margin-top:8px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+const base64urlDecode=str=>{
+  const pad=str.replace(/-/g,'+').replace(/_/g,'/');
+  const padded=pad + '==='.slice((pad.length+3)%4);
+  return new Uint8Array([...atob(padded)].map(c=>c.charCodeAt(0)));
+};
+const decodeJson=bytes=>JSON.stringify(JSON.parse(new TextDecoder().decode(bytes)),null,2);
+$('#verify').onclick=async()=>{
+  try{
+    const token=$('#token').value.trim();
+    const [h,p,s]=token.split('.');
+    if(!h||!p||!s) throw new Error('Token 格式不正确');
+    $('#header').textContent=decodeJson(base64urlDecode(h));
+    $('#payload').textContent=decodeJson(base64urlDecode(p));
+    const header=JSON.parse(new TextDecoder().decode(base64urlDecode(h)));
+    const alg=header.alg||'';
+    if(!alg.startsWith('HS')) throw new Error('仅支持 HS256/HS384/HS512');
+    const secret=$('#secret').value;
+    if(!secret) throw new Error('请输入密钥以校验签名');
+    const data=new TextEncoder().encode(`${h}.${p}`);
+    const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:`SHA-${alg.slice(2)}`},false,['sign']);
+    const signature=new Uint8Array(await crypto.subtle.sign('HMAC',key,data));
+    const base64sig=btoa(String.fromCharCode(...signature)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    if(base64sig===s){
+      $('#status').textContent='✅ 签名校验通过';
+    }else{
+      $('#status').textContent='❌ 签名不匹配';
+    }
+  }catch(err){
+    $('#status').textContent='错误：'+err.message;
+  }
+};
+</script>
+</body>
+</html>

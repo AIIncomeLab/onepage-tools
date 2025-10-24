@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>URL 批量解析</title>
+<meta name="description" content="批量解析 URL，拆解协议、域名、路径以及 Query 参数。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="URL 批量解析"></header>
+<main class="container card">
+<label>输入多个 URL（每行一个）：</label>
+<textarea class="input" id="input" rows="8" placeholder="https://example.com/path?a=1&b=2"></textarea>
+<button class="btn" id="run">解析</button>
+<div id="result" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+$('#run').onclick=()=>{
+  const urls=$('#input').value.split(/\n+/).map(v=>v.trim()).filter(Boolean);
+  if(!urls.length) return alert('请输入至少一个 URL');
+  const container=document.createElement('div');
+  urls.forEach(url=>{
+    try{
+      const u=new URL(url);
+      const params=[...u.searchParams.entries()].map(([k,v])=>`${k}: ${v}`).join('<br>')||'（无参数）';
+      const card=document.createElement('div');
+      card.className='card';
+      card.innerHTML=`<b>${url}</b><br>
+      协议：${u.protocol}<br>
+      域名：${u.hostname}<br>
+      端口：${u.port||'默认'}<br>
+      路径：${u.pathname}<br>
+      Hash：${u.hash||'（无）'}<br>
+      <div style="margin-top:8px">Query 参数：<br>${params}</div>`;
+      container.appendChild(card);
+    }catch(err){
+      const card=document.createElement('div');
+      card.className='card';
+      card.innerHTML=`<b>${url}</b><br><span class="muted">无法解析：${err.message}</span>`;
+      container.appendChild(card);
+    }
+  });
+  $('#result').innerHTML='';
+  $('#result').appendChild(container);
+};
+</script>
+</body>
+</html>

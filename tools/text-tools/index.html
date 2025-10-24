@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>文本去重排序工具</title>
+<meta name="description" content="快速对文本行进行去重、排序、统计行数与字数。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="文本去重排序工具"></header>
+<main class="container card">
+<label>输入文本（将按行处理）：</label>
+<textarea class="input" id="text" rows="12"></textarea>
+<div class="grid cols-2" style="margin-top:12px">
+<label><input type="checkbox" id="dedupe" checked> 去除重复行</label>
+<label><input type="checkbox" id="sort" checked> 排序（字典序）</label>
+<label><input type="checkbox" id="trim" checked> 去除首尾空格</label>
+<label><input type="checkbox" id="removeBlank" checked> 移除空行</label>
+</div>
+<button class="btn" id="run" style="margin-top:12px">处理文本</button>
+<label style="margin-top:16px">结果：</label>
+<textarea class="input" id="output" rows="12"></textarea>
+<div id="stats" class="muted" style="margin-top:8px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+$('#run').onclick=()=>{
+  let lines=$('#text').value.split(/\r?\n/);
+  if($('#trim').checked) lines=lines.map(l=>l.trim());
+  if($('#removeBlank').checked) lines=lines.filter(l=>l.length);
+  if($('#dedupe').checked){
+    const set=new Set();
+    lines=lines.filter(l=>!set.has(l)&&set.add(l));
+  }
+  if($('#sort').checked) lines.sort((a,b)=>a.localeCompare(b));
+  $('#output').value=lines.join('\n');
+  const chars=lines.join('').length;
+  $('#stats').textContent=`共 ${lines.length} 行，${chars} 个字符。`;
+};
+</script>
+</body>
+</html>

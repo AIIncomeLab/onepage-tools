@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>头像裁剪器</title>
+<meta name="description" content="裁剪社交平台常用尺寸的头像，导出 PNG/JPG。">
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/assets/cropper.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/cropperjs@1.5.13/dist/cropper.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="头像裁剪器"></header>
+<main class="container card">
+<label>上传图片：</label>
+<input class="input" type="file" id="file" accept="image/*">
+<label>输出尺寸：</label>
+<select class="input" id="size">
+<option value="512">512×512（通用）</option>
+<option value="400">400×400（Twitter）</option>
+<option value="320">320×320（微信）</option>
+<option value="256">256×256</option>
+</select>
+<div style="margin-top:16px">
+<img id="preview" style="max-width:100%;display:none">
+</div>
+<button class="btn" id="download" style="margin-top:16px">导出头像</button>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+let cropper=null;
+$('#file').addEventListener('change',async()=>{
+  const file=$('#file').files[0];
+  if(!file) return;
+  const url=URL.createObjectURL(file);
+  const img=$('#preview');
+  img.src=url;
+  img.style.display='block';
+  await new Promise(r=>{img.onload=r;});
+  if(cropper) cropper.destroy();
+  cropper=new Cropper(img,{aspectRatio:1,viewMode:1,dragMode:'move',background:false,autoCropArea:1});
+});
+$('#download').onclick=()=>{
+  if(!cropper) return alert('请先上传图片');
+  const size=parseInt($('#size').value,10)||512;
+  const canvas=cropper.getCroppedCanvas({width:size,height:size,imageSmoothingQuality:'high'});
+  const url=canvas.toDataURL('image/png');
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`avatar-${size}.png`;
+  a.click();
+};
+</script>
+</body>
+</html>

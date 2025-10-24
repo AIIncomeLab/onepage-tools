@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>时区 / 时差计算器</title>
+<meta name="description" content="比较两个时区的当前时间与时差，支持自定义时间。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="时区 / 时差计算器"></header>
+<main class="container card">
+<div class="grid cols-2">
+<label>时区 A<input class="input" list="zones" id="zoneA" value="Asia/Shanghai"></label>
+<label>时区 B<input class="input" list="zones" id="zoneB" value="America/New_York"></label>
+</div>
+<datalist id="zones"></datalist>
+<label>基准时间（默认为当前）</label>
+<input class="input" type="datetime-local" id="base">
+<button class="btn" id="calc" style="margin-top:12px">计算</button>
+<div id="result" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+try{
+  const list=Intl.supportedValuesOf('timeZone');
+  $('#zones').innerHTML=list.map(z=>`<option value="${z}">`).join('');
+}catch(err){
+  console.warn('浏览器不支持列举时区',err);
+}
+function formatInZone(date,zone){
+  return new Intl.DateTimeFormat('zh-CN',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(date);
+}
+function getOffsetMinutes(date,zone){
+  const localeString=date.toLocaleString('en-US',{timeZone:zone});
+  const zoned=new Date(localeString);
+  return (zoned.getTime()-date.getTime())/60000;
+}
+$('#calc').onclick=()=>{
+  const zoneA=$('#zoneA').value.trim();
+  const zoneB=$('#zoneB').value.trim();
+  if(!zoneA||!zoneB) return alert('请选择时区');
+  let baseDate;
+  const baseValue=$('#base').value;
+  if(baseValue) baseDate=new Date(baseValue);
+  else baseDate=new Date();
+  const aTime=formatInZone(baseDate,zoneA);
+  const bTime=formatInZone(baseDate,zoneB);
+  const diffMinutes=getOffsetMinutes(baseDate,zoneA)-getOffsetMinutes(baseDate,zoneB);
+  const diffHours=(diffMinutes/60).toFixed(1);
+  $('#result').innerHTML=`<div class="card">
+  <p>${zoneA}：${aTime}</p>
+  <p>${zoneB}：${bTime}</p>
+  <p class="muted">时差约 ${diffHours} 小时</p>
+  </div>`;
+};
+</script>
+</body>
+</html>

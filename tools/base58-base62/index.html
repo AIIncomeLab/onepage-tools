@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Base58 / Base62 编解码</title>
+<meta name="description" content="将文本进行 Base58 或 Base62 编码与解码，常用于短链接和区块链场景。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="Base58 / Base62 编解码"></header>
+<main class="container card">
+<label>输入文本：</label>
+<textarea class="input" id="input" rows="6"></textarea>
+<label>进制：</label>
+<select class="input" id="mode">
+<option value="58">Base58</option>
+<option value="62">Base62</option>
+</select>
+<div style="margin:12px 0">
+<button class="btn" id="encode">编码 →</button>
+<button class="btn" id="decode">解码 ←</button>
+</div>
+<label>结果：</label>
+<textarea class="input" id="output" rows="6"></textarea>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const alphabet58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+const alphabet62='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const $=s=>document.querySelector(s);
+function getAlphabet(){
+  return $('#mode').value==='58'?alphabet58:alphabet62;
+}
+function encode(input){
+  const alphabet=getAlphabet();
+  const bytes=new TextEncoder().encode(input);
+  let num=BigInt(0);
+  bytes.forEach(b=>{num=(num<<8n)+BigInt(b);});
+  if(num===0n) return alphabet[0];
+  let out='';
+  const base=BigInt(alphabet.length);
+  while(num>0n){
+    const mod=Number(num%base);
+    out=alphabet[mod]+out;
+    num/=base;
+  }
+  return out;
+}
+function decode(str){
+  const alphabet=getAlphabet();
+  const base=BigInt(alphabet.length);
+  let num=0n;
+  for(const ch of str){
+    const idx=alphabet.indexOf(ch);
+    if(idx<0) throw new Error('非法字符: '+ch);
+    num=num*base+BigInt(idx);
+  }
+  const bytes=[];
+  while(num>0n){
+    bytes.unshift(Number(num&255n));
+    num>>=8n;
+  }
+  return new TextDecoder().decode(new Uint8Array(bytes));
+}
+$('#encode').onclick=()=>$('#output').value=encode($('#input').value);
+$('#decode').onclick=()=>{
+  try{$('#input').value=decode($('#output').value);}
+  catch(err){alert(err.message);}
+};
+</script>
+</body>
+</html>

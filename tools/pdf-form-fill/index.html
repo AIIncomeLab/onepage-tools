@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF 表单填写</title>
+<meta name="description" content="加载带有表单字段的 PDF，修改字段后导出新文件。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="PDF 表单填写" data-note="支持文本框、复选框、单选按钮与下拉列表"></header>
+<main class="container card">
+<label>选择 PDF：</label>
+<input class="input" type="file" id="file" accept="application/pdf">
+<div id="fields" style="margin-top:16px"></div>
+<button class="btn" id="save" style="margin-top:16px">保存为新 PDF</button>
+<div id="msg" class="muted" style="margin-top:12px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+let pdfDoc=null, pdfForm=null, originalName='form.pdf';
+$('#file').addEventListener('change',async e=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  $('#msg').textContent='解析表单字段…';
+  originalName=file.name;
+  const bytes=new Uint8Array(await file.arrayBuffer());
+  pdfDoc=await PDFLib.PDFDocument.load(bytes);
+  pdfForm=pdfDoc.getForm();
+  const container=$('#fields');
+  container.innerHTML='';
+  const fields=pdfForm.getFields();
+  if(!fields.length){
+    container.innerHTML='<div class="muted">未检测到表单字段。</div>';
+    return;
+  }
+  fields.forEach(field=>{
+    const type=field.constructor.name;
+    const name=field.getName();
+    const wrapper=document.createElement('div');
+    wrapper.style.marginBottom='12px';
+    const label=document.createElement('label');
+    label.textContent=`${name} (${type})`;
+    wrapper.appendChild(label);
+    if(type==='PDFTextField'){
+      const input=document.createElement('input');
+      input.className='input';
+      input.value=field.getText()?field.getText():'';
+      input.dataset.field=name;
+      input.dataset.type='text';
+      wrapper.appendChild(input);
+    }else if(type==='PDFCheckBox'){
+      const input=document.createElement('input');
+      input.type='checkbox';
+      input.checked=field.isChecked();
+      input.dataset.field=name;
+      input.dataset.type='checkbox';
+      wrapper.appendChild(input);
+    }else if(type==='PDFRadioGroup'){
+      const options=field.getOptions();
+      const select=document.createElement('select');
+      select.className='input';
+      options.forEach(opt=>{
+        const o=document.createElement('option');
+        o.value=opt;
+        o.textContent=opt;
+        if(field.getSelected()==opt) o.selected=true;
+        select.appendChild(o);
+      });
+      select.dataset.field=name;
+      select.dataset.type='radio';
+      wrapper.appendChild(select);
+    }else if(type==='PDFDropdown'){
+      const opts=field.getOptions();
+      const select=document.createElement('select');
+      select.className='input';
+      opts.forEach(opt=>{
+        const o=document.createElement('option');
+        o.value=opt;
+        o.textContent=opt;
+        if(field.getSelected()==opt) o.selected=true;
+        select.appendChild(o);
+      });
+      select.dataset.field=name;
+      select.dataset.type='dropdown';
+      wrapper.appendChild(select);
+    }else{
+      const note=document.createElement('div');
+      note.className='muted';
+      note.textContent='暂不支持该字段类型。';
+      wrapper.appendChild(note);
+    }
+    container.appendChild(wrapper);
+  });
+  $('#msg').textContent='字段已加载，可编辑后保存。';
+});
+$('#save').onclick=async()=>{
+  if(!pdfDoc||!pdfForm) return alert('请先加载包含表单的 PDF');
+  $('#msg').textContent='写入字段…';
+  $('#fields').querySelectorAll('[data-field]').forEach(el=>{
+    const name=el.dataset.field;
+    const type=el.dataset.type;
+    try{
+      if(type==='text') pdfForm.getTextField(name).setText(el.value);
+      if(type==='checkbox'){
+        const cb=pdfForm.getCheckBox(name);
+        el.checked?cb.check():cb.uncheck();
+      }
+      if(type==='radio') pdfForm.getRadioGroup(name).select(el.value);
+      if(type==='dropdown') pdfForm.getDropdown(name).select(el.value);
+    }catch(err){console.warn('字段写入失败',name,err);}
+  });
+  const out=await pdfDoc.save();
+  const blob=new Blob([out],{type:'application/pdf'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`filled-${originalName}`;
+  a.click();
+  $('#msg').textContent='已导出填写后的 PDF。';
+};
+</script>
+</body>
+</html>

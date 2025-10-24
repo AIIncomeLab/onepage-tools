@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cron 表达式生成器</title>
+<meta name="description" content="选择调度需求自动生成 Cron 表达式，并查看自然语言描述。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/cronstrue@2.50.0/dist/cronstrue.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="Cron 表达式生成器"></header>
+<main class="container card">
+<div class="grid cols-2">
+<label>分钟<input class="input" id="min" value="0" placeholder="如 */5"></label>
+<label>小时<input class="input" id="hour" value="*" placeholder="如 9-18"></label>
+<label>日<input class="input" id="dom" value="*" placeholder="1-31"></label>
+<label>月<input class="input" id="mon" value="*" placeholder="1-12"></label>
+<label>星期<input class="input" id="dow" value="*" placeholder="0-6"></label>
+</div>
+<button class="btn" id="build" style="margin-top:12px">生成 Cron</button>
+<label style="margin-top:16px">Cron 表达式：</label>
+<input class="input" type="text" id="cron" readonly>
+<div class="card" style="margin-top:16px">
+<div class="muted">解释：</div>
+<div id="human"></div>
+</div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+const render=()=>{
+  const expr=`${$('#min').value||'*'} ${$('#hour').value||'*'} ${$('#dom').value||'*'} ${$('#mon').value||'*'} ${$('#dow').value||'*'}`;
+  $('#cron').value=expr;
+  try{
+    $('#human').textContent=cronstrue.toString(expr,{locale:'zh_CN'});
+  }catch(err){
+    $('#human').textContent='表达式无效：'+err.message;
+  }
+};
+$('#build').onclick=render;
+['min','hour','dom','mon','dow'].forEach(id=>$('#'+id).addEventListener('input',render));
+render();
+</script>
+</body>
+</html>

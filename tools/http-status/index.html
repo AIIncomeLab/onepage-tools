@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTTP 状态码查询</title>
+<meta name="description" content="快速查询 HTTP 状态码含义与常见解决方案。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="HTTP 状态码查询"></header>
+<main class="container card">
+<label>输入状态码：</label>
+<input class="input" type="number" id="code" placeholder="例如 404">
+<button class="btn" id="lookup">查询</button>
+<div id="result" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const data={
+100:'Continue：继续发送请求的剩余部分。',
+101:'Switching Protocols：服务器同意切换协议。',
+200:'OK：请求成功。',
+201:'Created：资源已创建。',
+202:'Accepted：请求已接受，稍后处理。',
+204:'No Content：成功但无内容返回。',
+301:'Moved Permanently：资源永久重定向。',
+302:'Found：临时重定向。',
+304:'Not Modified：资源未修改，可使用缓存。',
+307:'Temporary Redirect：临时重定向，保持方法。',
+308:'Permanent Redirect：永久重定向，保持方法。',
+400:'Bad Request：请求语法或参数错误。',
+401:'Unauthorized：未授权，需要身份验证。',
+403:'Forbidden：服务器拒绝请求。',
+404:'Not Found：资源不存在。',
+405:'Method Not Allowed：方法不被允许。',
+408:'Request Timeout：请求超时。',
+409:'Conflict：与资源当前状态冲突。',
+410:'Gone：资源已永久删除。',
+413:'Payload Too Large：请求体过大。',
+415:'Unsupported Media Type：不支持的媒体类型。',
+429:'Too Many Requests：请求频率过高。',
+500:'Internal Server Error：服务器内部错误。',
+501:'Not Implemented：暂未实现。',
+502:'Bad Gateway：网关错误。',
+503:'Service Unavailable：服务暂不可用（维护/过载）。',
+504:'Gateway Timeout：网关响应超时。',
+505:'HTTP Version Not Supported：HTTP 版本不支持。'
+};
+const $=s=>document.querySelector(s);
+$('#lookup').onclick=()=>{
+  const code=$('#code').value.trim();
+  if(!code) return alert('请输入状态码');
+  const desc=data[code];
+  $('#result').innerHTML=desc?`<div class="card"><h2>${code}</h2><p>${desc}</p></div>`:`<div class="muted">未找到该状态码，请确认输入。</div>`;
+};
+</script>
+</body>
+</html>

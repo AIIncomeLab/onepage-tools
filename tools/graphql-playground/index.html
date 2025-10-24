@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GraphQL 请求测试</title>
+<meta name="description" content="向 GraphQL 端点发送查询/变更请求，返回 JSON 响应。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="GraphQL 请求测试"></header>
+<main class="container card">
+<label>GraphQL Endpoint：</label>
+<input class="input" type="text" id="endpoint" placeholder="https://countries.trevorblades.com/">
+<label>Query / Mutation：</label>
+<textarea class="input" id="query" rows="10">query { countries { code name } }</textarea>
+<label>Variables (JSON，可选)：</label>
+<textarea class="input" id="variables" rows="4"></textarea>
+<button class="btn" id="send">发送请求</button>
+<label style="margin-top:16px">响应：</label>
+<pre class="code" id="response"></pre>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+$('#send').onclick=async()=>{
+  const endpoint=$('#endpoint').value.trim();
+  if(!endpoint) return alert('请输入 GraphQL Endpoint');
+  let variables={};
+  const vars=$('#variables').value.trim();
+  if(vars){
+    try{variables=JSON.parse(vars);}
+    catch(err){return alert('Variables 不是有效 JSON');}
+  }
+  try{
+    const res=await fetch(endpoint,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({query:$('#query').value,variables})
+    });
+    const json=await res.json();
+    $('#response').textContent=JSON.stringify(json,null,2);
+  }catch(err){
+    $('#response').textContent='请求失败：'+err.message;
+  }
+};
+</script>
+</body>
+</html>

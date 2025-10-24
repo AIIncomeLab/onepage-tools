@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>图片背景移除</title>
+<meta name="description" content="基于浏览器 AI 模型移除图片背景，输出透明 PNG。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="图片背景移除" data-note="模型运行于本地浏览器，首次加载需等待模型下载"></header>
+<main class="container card">
+<label>选择图片：</label>
+<input class="input" type="file" id="img" accept="image/*">
+<button class="btn" id="run">移除背景</button>
+<div id="status" class="muted" style="margin-top:12px"></div>
+<div id="preview" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+let removerPromise=null;
+async function loadRemover(){
+  if(!removerPromise){
+    removerPromise=import('https://unpkg.com/@imgly/background-removal@2.1.0/dist/browser.js');
+  }
+  return removerPromise;
+}
+$('#run').onclick=async()=>{
+  const file=$('#img').files[0];
+  if(!file) return alert('请选择图片');
+  $('#status').textContent='加载模型…';
+  const { removeBackground } = await loadRemover();
+  $('#status').textContent='处理中…';
+  try{
+    const result=await removeBackground(file,{
+      debug:false,
+      progress:p=>$('#status').textContent=`处理中… ${(p*100).toFixed(0)}%`
+    });
+    const url=URL.createObjectURL(result);
+    $('#preview').innerHTML=`<img src="${url}" style="max-width:100%;border-radius:12px;background:#f0f0f0"><br>
+    <a class="btn" href="${url}" download="removed-background.png">下载 PNG</a>`;
+    $('#status').textContent='完成！';
+  }catch(err){
+    console.error(err);
+    $('#status').textContent='移除失败，请尝试更换图片或稍后再试。';
+  }
+};
+</script>
+</body>
+</html>

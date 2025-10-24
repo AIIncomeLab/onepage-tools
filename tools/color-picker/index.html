@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>颜色取样器</title>
+<meta name="description" content="上传图片并点击任意位置，快速获取像素颜色值。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="颜色取样器"></header>
+<main class="container card">
+<label>选择图片：</label>
+<input class="input" type="file" id="img" accept="image/*">
+<canvas id="canvas" style="max-width:100%;margin-top:16px;border-radius:12px;cursor:crosshair"></canvas>
+<div id="info" style="margin-top:16px" class="muted">点击图片以获取颜色</div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+const info=document.getElementById('info');
+let scale=1;
+document.getElementById('img').addEventListener('change',async e=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  const img=new Image();
+  img.src=URL.createObjectURL(file);
+  await img.decode();
+  canvas.width=img.naturalWidth;
+  canvas.height=img.naturalHeight;
+  ctx.drawImage(img,0,0);
+  scale=canvas.getBoundingClientRect().width/canvas.width;
+  info.textContent='点击图片任意位置获取颜色。';
+});
+canvas.addEventListener('click',e=>{
+  const rect=canvas.getBoundingClientRect();
+  const x=Math.floor((e.clientX-rect.left)/scale);
+  const y=Math.floor((e.clientY-rect.top)/scale);
+  const data=ctx.getImageData(x,y,1,1).data;
+  const [r,g,b,a]=data;
+  const hex='#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+  info.innerHTML=`RGB: ${r}, ${g}, ${b} | HEX: <code>${hex}</code> | Alpha: ${(a/255).toFixed(2)}<br>
+  <span style="display:inline-block;width:48px;height:24px;border-radius:6px;background:${hex};border:1px solid var(--border)"></span>`;
+});
+</script>
+</body>
+</html>

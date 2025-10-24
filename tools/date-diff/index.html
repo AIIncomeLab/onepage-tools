@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>纪念日天数计算器</title>
+<meta name="description" content="输入两个日期，计算相差的天数和周数，可用于纪念日、倒数日。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="纪念日天数计算器"></header>
+<main class="container card">
+<div class="grid cols-2">
+<label>起始日期<input class="input" type="date" id="start"></label>
+<label>结束日期<input class="input" type="date" id="end"></label>
+</div>
+<button class="btn" id="calc" style="margin-top:12px">计算</button>
+<div id="result" class="card" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+const today=new Date().toISOString().slice(0,10);
+$('#start').value=today;
+$('#end').value=today;
+$('#calc').onclick=()=>{
+  const start=new Date($('#start').value);
+  const end=new Date($('#end').value);
+  if(Number.isNaN(start)||Number.isNaN(end)) return alert('请选择有效日期');
+  const diffMs=end-start;
+  const days=Math.round(diffMs/86400000);
+  const absDays=Math.abs(days);
+  $('#result').innerHTML=`<p>相差 <b>${absDays}</b> 天（${(absDays/7).toFixed(1)} 周）。</p>
+  <p class="muted">${days>=0?'结束日期在起始日期之后':'结束日期在起始日期之前'}。</p>`;
+};
+</script>
+</body>
+</html>

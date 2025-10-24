@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF 密码设置/移除</title>
+<meta name="description" content="输入旧密码解锁 PDF，并可重新设置新密码。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="PDF 密码设置/移除" data-note="浏览器本地处理，请勿上传敏感文件"></header>
+<main class="container card">
+<label>选择 PDF：</label>
+<input class="input" type="file" id="file" accept="application/pdf">
+<label>原密码（若文件已加密）：</label>
+<input class="input" type="password" id="oldPwd" placeholder="无则留空">
+<label>新密码（留空则移除密码）：</label>
+<input class="input" type="password" id="newPwd" placeholder="设置新的打开密码">
+<button class="btn" id="run">处理文件</button>
+<div id="msg" class="muted" style="margin-top:12px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+$('#run').onclick=async()=>{
+  const file=$('#file').files[0];
+  if(!file) return alert('请选择 PDF');
+  $('#msg').textContent='处理中…';
+  try{
+    const bytes=new Uint8Array(await file.arrayBuffer());
+    const pdf=await PDFLib.PDFDocument.load(bytes,{password:$('#oldPwd').value||undefined});
+    const newPwd=$('#newPwd').value;
+    if(newPwd){
+      if(typeof pdf.encrypt==='function'){
+        pdf.encrypt({ownerPassword:newPwd,userPassword:newPwd,permissions:{printing:'highResolution',modifying:false,copying:false}});
+      }else{
+        $('#msg').textContent='当前库暂不支持设置新密码，只能移除密码。';
+      }
+    }
+    const out=await pdf.save({useObjectStreams:true,addDefaultPage:false});
+    const blob=new Blob([out],{type:'application/pdf'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=newPwd?`protected-${file.name}`:`unlocked-${file.name}`;
+    a.click();
+    $('#msg').textContent='完成！';
+  }catch(err){
+    console.error(err);
+    $('#msg').textContent='处理失败，请确认原密码正确或文件无密码。';
+  }
+};
+</script>
+</body>
+</html>

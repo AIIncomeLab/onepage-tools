@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spritesheet 生成器</title>
+<meta name="description" content="合并多张小图为一张雪碧图，并生成 CSS 背景定位代码。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="Spritesheet 生成器"></header>
+<main class="container card">
+<label>选择图片（同尺寸效果最佳）：</label>
+<input class="input" type="file" id="files" accept="image/*" multiple>
+<label>每行数量：</label>
+<input class="input" type="number" id="columns" value="5" min="1" max="20">
+<label>间距（px）：</label>
+<input class="input" type="number" id="gap" value="4" min="0" max="50">
+<button class="btn" id="run">生成雪碧图</button>
+<div id="result" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+$('#run').onclick=async()=>{
+  const files=[...$('#files').files];
+  if(!files.length) return alert('请选择图片');
+  const images=[];
+  for(const file of files){
+    const img=new Image();
+    img.src=URL.createObjectURL(file);
+    await img.decode();
+    images.push({img,name:file.name});
+  }
+  const cols=Math.max(1,parseInt($('#columns').value,10)||5);
+  const gap=Math.max(0,parseInt($('#gap').value,10)||0);
+  const cellWidth=Math.max(...images.map(i=>i.img.width));
+  const cellHeight=Math.max(...images.map(i=>i.img.height));
+  const rows=Math.ceil(images.length/cols);
+  const canvas=document.createElement('canvas');
+  canvas.width=cols*cellWidth+(cols-1)*gap;
+  canvas.height=rows*cellHeight+(rows-1)*gap;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='rgba(0,0,0,0)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  const cssLines=[];
+  images.forEach((item,idx)=>{
+    const col=idx%cols;
+    const row=Math.floor(idx/cols);
+    const x=col*(cellWidth+gap);
+    const y=row*(cellHeight+gap);
+    ctx.drawImage(item.img,x,y);
+    const className=`icon-${item.name.replace(/\.[^.]+$/,'').replace(/[^a-z0-9_-]/gi,'-')}`;
+    cssLines.push(`.${className}{background-position:-${x}px -${y}px;width:${item.img.width}px;height:${item.img.height}px;}`);
+  });
+  const url=canvas.toDataURL('image/png');
+  const css=`.sprite{background-image:url('sprite.png');display:inline-block;background-repeat:no-repeat;}\n${cssLines.join('\n')}`;
+  $('#result').innerHTML=`<img src="${url}" style="max-width:100%;border:1px solid var(--border);border-radius:12px;background:#fff"><br>
+  <a class="btn" href="${url}" download="sprite.png">下载雪碧图</a>
+  <label style="margin-top:12px;display:block">CSS：</label>
+  <textarea class="input" rows="8">${css}</textarea>`;
+};
+</script>
+</body>
+</html>

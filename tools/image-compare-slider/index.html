@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>图片对比滑块</title>
+<meta name="description" content="上传前后两张图片，通过滑块对比差异。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<style>
+.compare-wrapper{position:relative;width:100%;max-width:640px;margin:0 auto;border-radius:16px;overflow:hidden}
+.compare-wrapper img{display:block;width:100%}
+.compare-wrapper .top{position:absolute;top:0;left:0;height:100%;overflow:hidden}
+.compare-wrapper .handle{position:absolute;top:0;bottom:0;width:2px;background:var(--accent);pointer-events:none}
+</style>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="图片对比滑块"></header>
+<main class="container card">
+<label>原图：</label><input class="input" type="file" id="before" accept="image/*">
+<label>对比图：</label><input class="input" type="file" id="after" accept="image/*">
+<div class="compare-wrapper" id="wrapper" style="margin-top:16px;display:none">
+<img id="imgAfter" alt="after">
+<div class="top" id="topLayer"><img id="imgBefore" alt="before"></div>
+<div class="handle" id="handle"></div>
+</div>
+<input class="input" type="range" id="slider" min="0" max="100" value="50" style="margin-top:16px;display:none">
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+const slider=$('#slider');
+const topLayer=$('#topLayer');
+const handle=$('#handle');
+function updateSlider(val){
+  topLayer.style.width=val+'%';
+  handle.style.left=val+'%';
+}
+slider.addEventListener('input',e=>updateSlider(e.target.value));
+async function loadImage(input, imgEl){
+  const file=input.files[0];
+  if(!file) return;
+  const url=URL.createObjectURL(file);
+  imgEl.src=url;
+  await new Promise(r=>{imgEl.onload=r;});
+  return true;
+}
+async function refresh(){
+  const beforeReady=$('#before').files[0];
+  const afterReady=$('#after').files[0];
+  if(!beforeReady||!afterReady) return;
+  await loadImage($('#after'),$('#imgAfter'));
+  await loadImage($('#before'),$('#imgBefore'));
+  $('#wrapper').style.display='block';
+  slider.style.display='block';
+  updateSlider(slider.value);
+}
+$('#before').addEventListener('change',refresh);
+$('#after').addEventListener('change',refresh);
+</script>
+</body>
+</html>

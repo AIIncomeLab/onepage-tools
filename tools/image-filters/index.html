@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>图片滤镜增强</title>
+<meta name="description" content="调整亮度、对比度、饱和度等参数，为照片套用滤镜并导出。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="图片滤镜增强"></header>
+<main class="container card">
+<label>选择图片：</label>
+<input class="input" type="file" id="img" accept="image/*">
+<div class="grid cols-2" style="margin-top:16px">
+<div>
+<label>亮度</label><input class="input" type="range" id="brightness" min="0.2" max="2" value="1" step="0.05">
+<label>对比度</label><input class="input" type="range" id="contrast" min="0.2" max="2" value="1" step="0.05">
+<label>饱和度</label><input class="input" type="range" id="saturate" min="0" max="2" value="1" step="0.05">
+<label>色温（暖色调）</label><input class="input" type="range" id="sepia" min="0" max="1" value="0" step="0.05">
+</div>
+<div id="preview" style="text-align:center">
+<canvas id="canvas" style="max-width:100%;border-radius:12px"></canvas>
+</div>
+</div>
+<button class="btn" id="download" style="margin-top:16px">下载处理后图片</button>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+const canvas=$('#canvas');
+const ctx=canvas.getContext('2d');
+let originalImage=null;
+$('#img').addEventListener('change',async()=>{
+  const file=$('#img').files[0];
+  if(!file) return;
+  const img=new Image();
+  img.src=URL.createObjectURL(file);
+  await img.decode();
+  canvas.width=img.naturalWidth;
+  canvas.height=img.naturalHeight;
+  originalImage=img;
+  applyFilters();
+});
+['brightness','contrast','saturate','sepia'].forEach(id=>{
+  $('#'+id).addEventListener('input',applyFilters);
+});
+function applyFilters(){
+  if(!originalImage)return;
+  const b=$('#brightness').value;
+  const c=$('#contrast').value;
+  const s=$('#saturate').value;
+  const sep=$('#sepia').value;
+  ctx.filter=`brightness(${b}) contrast(${c}) saturate(${s}) sepia(${sep})`;
+  ctx.drawImage(originalImage,0,0,canvas.width,canvas.height);
+}
+$('#download').onclick=()=>{
+  if(!canvas.width)return alert('请先选择图片');
+  const url=canvas.toDataURL('image/png');
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='filtered.png';
+  a.click();
+};
+</script>
+</body>
+</html>

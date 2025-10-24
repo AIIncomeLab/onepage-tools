@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GUID ↔ ShortID 转换</title>
+<meta name="description" content="将标准 UUID/GUID 转换为 Base62 短 ID，或反向还原。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="GUID ↔ ShortID 转换"></header>
+<main class="container card">
+<label>GUID / UUID：</label>
+<input class="input" type="text" id="uuid" placeholder="550e8400-e29b-41d4-a716-446655440000">
+<button class="btn" id="toShort">GUID → ShortID</button>
+<label style="margin-top:16px">ShortID (Base62)：</label>
+<input class="input" type="text" id="short" placeholder="短 ID">
+<button class="btn" id="toGuid" style="margin-top:12px">ShortID → GUID</button>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const alphabet='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const base=BigInt(alphabet.length);
+const $=s=>document.querySelector(s);
+const uuidToShort=uuid=>{
+  const hex=uuid.replace(/-/g,'').toLowerCase();
+  if(!/^[0-9a-f]{32}$/.test(hex)) throw new Error('GUID 格式不正确');
+  let num=BigInt('0x'+hex);
+  let out='';
+  while(num>0n){
+    out=alphabet[Number(num%base)]+out;
+    num/=base;
+  }
+  return out.padStart(22,alphabet[0]);
+};
+const shortToUuid=short=>{
+  let num=0n;
+  for(const ch of short){
+    const idx=alphabet.indexOf(ch);
+    if(idx<0) throw new Error('ShortID 含非法字符');
+    num=num*base+BigInt(idx);
+  }
+  let hex=num.toString(16).padStart(32,'0');
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`.toLowerCase();
+};
+$('#toShort').onclick=()=>{
+  try{$('#short').value=uuidToShort($('#uuid').value.trim());}
+  catch(err){alert(err.message);}
+};
+$('#toGuid').onclick=()=>{
+  try{$('#uuid').value=shortToUuid($('#short').value.trim());}
+  catch(err){alert(err.message);}
+};
+</script>
+</body>
+</html>

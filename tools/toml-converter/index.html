@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TOML ↔ JSON/YAML 转换</title>
+<meta name="description" content="在浏览器中互转 TOML、JSON、YAML 三种常见配置格式。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+<script src="https://unpkg.com/@iarna/toml@2.2.5/toml.js"></script>
+<script src="https://unpkg.com/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="TOML ↔ JSON/YAML 转换"></header>
+<main class="container grid cols-2">
+<div class="card">
+<label>TOML：</label>
+<textarea class="input" id="toml" rows="12" placeholder='title = "demo"'></textarea>
+<div style="margin-top:8px">
+<button class="btn" id="tomlToJson">TOML → JSON</button>
+<button class="btn" id="tomlToYaml">TOML → YAML</button>
+</div>
+</div>
+<div class="card">
+<label>JSON/YAML：</label>
+<textarea class="input" id="other" rows="12" placeholder='{"title":"demo"} 或 YAML'></textarea>
+<div style="margin-top:8px">
+<button class="btn" id="otherToTomlJson">JSON → TOML</button>
+<button class="btn" id="otherToTomlYaml">YAML → TOML</button>
+</div>
+</div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+$('#tomlToJson').onclick=()=>{
+  try{
+    const data=TOML.parse($('#toml').value||'');
+    $('#other').value=JSON.stringify(data,null,2);
+  }catch(err){alert('TOML 解析失败：'+err.message);}
+};
+$('#tomlToYaml').onclick=()=>{
+  try{
+    const data=TOML.parse($('#toml').value||'');
+    $('#other').value=jsyaml.dump(data);
+  }catch(err){alert('TOML 解析失败：'+err.message);}
+};
+$('#otherToTomlJson').onclick=()=>{
+  try{
+    const data=JSON.parse($('#other').value||'{}');
+    $('#toml').value=TOML.stringify(data);
+  }catch(err){alert('JSON 解析失败：'+err.message);}
+};
+$('#otherToTomlYaml').onclick=()=>{
+  try{
+    const data=jsyaml.load($('#other').value||'');
+    $('#toml').value=TOML.stringify(data);
+  }catch(err){alert('YAML 解析失败：'+err.message);}
+};
+</script>
+</body>
+</html>

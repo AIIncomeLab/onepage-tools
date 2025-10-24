@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>响应头解析器</title>
+<meta name="description" content="将 HTTP 请求/响应头文本解析为结构化键值，方便调试。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="响应头解析器"></header>
+<main class="container card">
+<label>粘贴原始 Header：</label>
+<textarea class="input" id="raw" rows="10" placeholder="Content-Type: application/json&#10;Cache-Control: no-cache"></textarea>
+<button class="btn" id="parse">解析</button>
+<label style="margin-top:16px">结果：</label>
+<pre class="code" id="out"></pre>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+$('#parse').onclick=()=>{
+  const lines=$('#raw').value.split(/\r?\n/).filter(Boolean);
+  const obj={};
+  lines.forEach(line=>{
+    const [key,...rest]=line.split(':');
+    if(!key||!rest.length) return;
+    const value=rest.join(':').trim();
+    const lower=key.trim().toLowerCase();
+    if(obj[lower]) obj[lower]=[].concat(obj[lower],value);
+    else obj[lower]=value;
+  });
+  $('#out').textContent=JSON.stringify(obj,null,2);
+};
+</script>
+</body>
+</html>

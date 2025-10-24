@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>REST API Mock 生成器</title>
+<meta name="description" content="根据接口路径与返回数据，快速生成 curl、Express 或 MSW 的 Mock 代码片段。">
+<link rel="stylesheet" href="/assets/styles.css">
+<script src="/assets/layout.js" defer></script>
+</head>
+<body>
+<header class="container site-header" data-site-header data-title="REST API Mock 生成器"></header>
+<main class="container card">
+<div class="grid cols-2">
+<label>HTTP 方法<input class="input" id="method" value="GET"></label>
+<label>接口路径<input class="input" id="path" value="/api/demo"></label>
+</div>
+<label>返回状态码：</label>
+<input class="input" type="number" id="status" value="200">
+<label>返回 JSON：</label>
+<textarea class="input" id="json" rows="6">{"success":true,"message":"hello"}</textarea>
+<button class="btn" id="generate" style="margin-top:12px">生成代码</button>
+<div id="output" style="margin-top:16px"></div>
+</main>
+<footer class="container site-footer" data-site-footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+const escapeJSON=text=>{
+  try{return JSON.stringify(JSON.parse(text),null,2);}
+  catch(err){throw new Error('JSON 解析失败：'+err.message);}
+};
+$('#generate').onclick=()=>{
+  try{
+    const method=$('#method').value.trim().toUpperCase()||'GET';
+    const path=$('#path').value.trim()||'/api/demo';
+    const status=parseInt($('#status').value,10)||200;
+    const body=escapeJSON($('#json').value||'{}');
+    const curl=`curl -X ${method} https://example.com${path} \\\n  -H "Content-Type: application/json" \\\n  -d '${body.replace(/'/g,"'\\''")}'`;
+    const express=`app.${method.toLowerCase()}('${path}', (req, res) => {\n  res.status(${status}).json(${body});\n});`;
+    const msw=`rest.${method.toLowerCase()}('${path}', (req, res, ctx) => {\n  return res(ctx.status(${status}), ctx.json(${body}));\n});`;
+    const fetchSnippet=`fetch('${path}', {\n  method: '${method}',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify(${body})\n});`;
+    $('#output').innerHTML=`<div class="card"><b>curl：</b><pre class="code">${curl}</pre></div>
+    <div class="card"><b>Express：</b><pre class="code">${express}</pre></div>
+    <div class="card"><b>MSW：</b><pre class="code">${msw}</pre></div>
+    <div class="card"><b>fetch 示例：</b><pre class="code">${fetchSnippet}</pre></div>`;
+  }catch(err){
+    $('#output').innerHTML=`<div class="muted">${err.message}</div>`;
+  }
+};
+</script>
+</body>
+</html>
